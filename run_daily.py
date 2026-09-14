@@ -104,14 +104,24 @@ def send_email_summary(summary: str, config: Dict[str, Any]) -> None:
     msg["To"] = email_cfg.get("to_address")
     msg.set_content(summary)
 
+    smtp_server = email_cfg.get("smtp_server")
+    smtp_port = int(email_cfg.get("smtp_port", 587))
+    username = email_cfg.get("username")
+    password = (email_cfg.get("password") or "").strip().replace(" ", "")
+
+    print(f"[INFO] Attempting to send email via {smtp_server}:{smtp_port} from {email_cfg.get('from_address')} to {email_cfg.get('to_address')} (user: {username})")
+
     try:
-        with smtplib.SMTP(email_cfg.get("smtp_server"), int(email_cfg.get("smtp_port", 587))) as server:
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
+            server.set_debuglevel(1)
+            server.ehlo()
             server.starttls()
-            server.login(email_cfg.get("username"), email_cfg.get("password"))
+            server.ehlo()
+            server.login(username, password)
             server.send_message(msg)
-        print("[INFO] Daily email sent.")
+        print("[INFO] Daily email sent successfully.")
     except Exception as exc:
-        print(f"[WARN] Failed to send email: {exc}")
+        print(f"[ERROR] Failed to send email: {type(exc).__name__}: {exc}")
 
 
 def build_digest(results: List[Dict[str, Any]]) -> str:
@@ -182,8 +192,7 @@ def main() -> None:
     digest = build_digest(new_jobs or top_results)
     if config.get("email", {}).get("enabled"):
         send_email_summary(digest, config)
-    else:
-        print(digest)
+    print(digest)
 
     print(f"[INFO] Found {len(top_results)} relevant jobs. {len(new_jobs)} are new since the last run.")
 

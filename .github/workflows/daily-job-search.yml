@@ -24,6 +24,7 @@ jobs:
 
       - name: Run daily job scan
         env:
+          EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED || 'true' }}
           SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
@@ -33,10 +34,9 @@ jobs:
         run: python run_daily.py
 
       - name: Upload job results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: job-results
-          path: |
-            output/results.json
-            output/new_jobs.json
-            output/top_matches.csv
+          path: output/
+          if-no-files-found: warn

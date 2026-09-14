@@ -75,11 +75,21 @@ def is_us_location(location: str) -> bool:
     return any(us in clean_loc for us in US_LOCATIONS)
 
 
+def _find_matched_keywords(text: str, keywords: List[str]) -> List[str]:
+    clean = normalize_text(text)
+    matched = []
+    for kw in keywords:
+        if kw.lower() in clean:
+            matched.append(kw)
+    return matched
+
+
 def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     title = _coalesce(job.get("title"), "")
     description = _coalesce(job.get("description"), "")
     company = _coalesce(job.get("company"), "")
     location = _coalesce(job.get("location"), "")
+    posted_at = _coalesce(job.get("posted_at"), "")
     text_blob = f"{title} {description} {company} {location}"
     clean_title = normalize_text(title)
 
@@ -92,28 +102,39 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     ]
     if any(term in clean_title for term in primary_uxr_titles):
         role_alignment_score = 100
+        role_alignment_detail = "Direct title match to target UX research role"
     elif "researcher" in clean_title and any(d in clean_title for d in ["product", "experience", "design", "consumer"]):
         role_alignment_score = 90
+        role_alignment_detail = "Strong product/experience research title match"
     elif "director, research" in clean_title or "head of research" in clean_title or "research manager" in clean_title:
         role_alignment_score = 90
+        role_alignment_detail = "Research leadership title match"
     elif any(term in normalize_text(description) for term in primary_uxr_titles):
         role_alignment_score = 75
+        role_alignment_detail = "UX research responsibilities described in role content"
     elif "research" in clean_title:
         role_alignment_score = 60
+        role_alignment_detail = "General research title"
     else:
         role_alignment_score = 25
+        role_alignment_detail = "Low direct title alignment"
 
     # 2. Seniority Fit (20%)
     seniority_tokens = ["senior", "sr", "lead", "principal", "staff", "manager", "director", "head", "vp"]
     junior_tokens = ["junior", "associate", "intern", "apprentice", "entry"]
+    matched_seniority = [tok for tok in seniority_tokens if tok in clean_title]
     if any(token in clean_title for token in junior_tokens):
         seniority_score = 20
-    elif any(token in clean_title for token in seniority_tokens):
+        seniority_detail = "Entry-level or intern level"
+    elif matched_seniority:
         seniority_score = 100
+        seniority_detail = f"Seniority level: {', '.join(matched_seniority).title()}"
     elif "researcher" in clean_title:
         seniority_score = 75
+        seniority_detail = "Mid/Senior researcher level"
     else:
         seniority_score = 50
+        seniority_detail = "Unspecified seniority"
 
     # 3. Methods and Skills Fit (15%)
     method_keywords = [
@@ -122,24 +143,26 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
         "ethnography", "heuristic", "discovery", "user journey", "enablement", "research ops",
         "ai-assisted", "generative"
     ]
-    method_hits = _count_keyword_hits(text_blob, method_keywords)
-    methods_score = min(100, int((method_hits / 4) * 100))
+    matched_methods = _find_matched_keywords(text_blob, method_keywords)
+    methods_score = min(100, int((len(matched_methods) / 4) * 100))
+    methods_detail = f"Matched methods: {', '.join(matched_methods[:5])}" if matched_methods else "No specific qualitative methods highlighted"
 
     # 4. Strategic Influence & Leadership Fit (15%)
     strategic_keywords = [
         "stakeholder", "strategy", "leadership", "coaching", "mentoring", "influence",
         "cross-functional", "prioritization", "partner", "roadmap", "decision", "business impact"
     ]
-    strategic_hits = _count_keyword_hits(text_blob, strategic_keywords)
-    strategic_score = min(100, int((strategic_hits / 4) * 100))
+    matched_leadership = _find_matched_keywords(text_blob, strategic_keywords)
+    strategic_score = min(100, int((len(matched_leadership) / 4) * 100))
+    leadership_detail = f"Leadership signals: {', '.join(matched_leadership[:5])}" if matched_leadership else "Standard individual contributor scope"
 
     # 5. Industry / Domain Fit (10%)
     industry_terms = [
         "financial", "fintech", "real estate", "logistics", "enterprise", "saas",
         "b2b", "consulting", "consumer", "platform"
     ]
-    industry_hits = _count_keyword_hits(text_blob, industry_terms)
-    industry_score = min(100, max(70, int(70 + (industry_hits * 10))))
+    matched_industries = _find_matched_keywords(text_blob, industry_terms)
+    industry_score = min(100, max(70, int(70 + (len(matched_industries) * 10))))
 
     # 6. Work Arrangement & Geography Fit (5%)
     is_us = is_us_location(location)
@@ -185,7 +208,16 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
         "title": title,
         "company": company,
         "location": location,
+        "posted_at": posted_at,
         "match_score": total,
         "category_scores": category_scores,
-        "fit_tier": fit_tier
+        "fit_tier": fit_tier,
+        "signals": {
+            "role": role_alignment_detail,
+            "seniority": seniority_detail,
+            "methods": methods_detail,
+            "leadership": leadership_detail,
+            "matched_methods_list": matched_methods,
+            "matched_leadership_list": matched_leadership,
+        }
     }

@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 import smtplib
@@ -77,10 +78,11 @@ def save_json(path: str, payload: Any) -> None:
 
 def save_top_matches_csv(results: List[Dict[str, Any]], path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:
-        f.write("title,company,location,fit_tier,match_score,url\n")
+        f.write("title,company,location,posted_at,fit_tier,match_score,url\n")
         for item in results:
+            posted = format_posted_date(item.get("posted_at"))
             f.write(
-                f"{item.get('title','')},{item.get('company','')},{item.get('location','')},{item.get('fit_tier','')},{item.get('match_score','')},{item.get('url','')}\n"
+                f"\"{item.get('title','')}\",\"{item.get('company','')}\",\"{item.get('location','')}\",\"{posted}\",\"{item.get('fit_tier','')}\",{item.get('match_score','')},\"{item.get('url','')}\"\n"
             )
 
 
@@ -131,16 +133,62 @@ def send_email_summary(summary: str, config: Dict[str, Any]) -> None:
         print(f"[ERROR] Failed to send email: {type(exc).__name__}: {exc}")
 
 
+def format_posted_date(raw_date: Any) -> str:
+    if not raw_date:
+        return "Not specified"
+    raw_str = str(raw_date).strip()
+    if not raw_str:
+        return "Not specified"
+    # Try timestamp in ms
+    if raw_str.isdigit():
+        try:
+            ts = int(raw_str)
+            if ts > 1e11:  # milliseconds
+                ts = ts / 1000.0
+            return datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
+        except Exception:
+            pass
+    # Try ISO string
+    try:
+        clean_iso = raw_str.replace("Z", "+00:00")
+        dt = datetime.fromisoformat(clean_iso)
+        return dt.strftime("%Y-%m-%d")
+    except Exception:
+        # Return first 10 characters if YYYY-MM-DD
+        if len(raw_str) >= 10 and raw_str[:10].count("-") == 2:
+            return raw_str[:10]
+        return raw_str
+
+
 def build_digest(results: List[Dict[str, Any]]) -> str:
-    lines = ["Daily UX Research Job Digest", "===========================", ""]
+    lines = [
+        "Daily UX Research Job Digest",
+        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M EST')}",
+        "==================================================",
+        ""
+    ]
     if not results:
         lines.append("No strong or moderate matches were found.")
         return "\n".join(lines)
 
     for idx, item in enumerate(results[:10], start=1):
-        lines.append(f"{idx}. {item.get('title')} | {item.get('company')} | {item.get('location')} | {item.get('fit_tier')} | {item.get('match_score')}/100")
-        lines.append(f"   URL: {item.get('url')}")
-        lines.append(f"   Why it matches: {item.get('match_reasons', '')}")
+        posted_str = format_posted_date(item.get("posted_at"))
+        lines.append(f"{idx}. {item.get('title')} | {item.get('company')}")
+        lines.append(f"   • Location: {item.get('location')}")
+        lines.append(f"   • Date Posted: {posted_str}")
+        lines.append(f"   • Fit Score: {item.get('match_score')}/100 [{item.get('fit_tier')}]")
+        lines.append(f"   • Direct Link: {item.get('url')}")
+        
+        signals = item.get("signals", {})
+        if signals:
+            lines.append("   • Fit Breakdown:")
+            lines.append(f"     - Role: {signals.get('role', 'N/A')}")
+            lines.append(f"     - Seniority: {signals.get('seniority', 'N/A')}")
+            lines.append(f"     - Qualitative Methods: {signals.get('methods', 'N/A')}")
+            lines.append(f"     - Leadership / Influence: {signals.get('leadership', 'N/A')}")
+        elif item.get("match_reasons"):
+            lines.append(f"   • Rationale: {item.get('match_reasons')}")
+            
         lines.append("")
 
     return "\n".join(lines)

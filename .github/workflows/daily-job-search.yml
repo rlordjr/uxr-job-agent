@@ -1,0 +1,42 @@
+name: Daily Job Search
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 13 * * 1-5'
+
+jobs:
+  run-job-search:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run daily job scan
+        env:
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python run_daily.py
+
+      - name: Upload job results
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-results
+          path: |
+            output/results.json
+            output/new_jobs.json
+            output/top_matches.csv

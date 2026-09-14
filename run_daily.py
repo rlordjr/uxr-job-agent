@@ -46,14 +46,12 @@ def is_target_role(job_title: str, config: Dict[str, Any]) -> bool:
     include_keywords = config.get("role_include_keywords", [])
     target_roles = config.get("target_roles", [])
 
-    # Check for hard excludes (e.g. AI research scientist, security research, marketing)
+    # Hard exclude check - if any exclude keyword is in title, reject immediately
     for excl in exclude_keywords:
         if excl.lower() in title:
-            # Only allow if explicitly marked as UX or User research
-            if not any(ux_kw in title for ux_kw in ["ux research", "ux researcher", "user research", "user researcher", "design research", "qualitative research"]):
-                return False
+            return False
 
-    # Check for direct target roles or include keywords match
+    # Check for direct target roles match
     for role in target_roles:
         if role.lower() in title:
             return True

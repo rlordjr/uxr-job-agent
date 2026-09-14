@@ -72,6 +72,10 @@
     "experience research"
   ],
   "role_exclude_keywords": [
+    "quantitative",
+    "quant ",
+    "quant-",
+    "quant)",
     "security research",
     "equity research",
     "financial research",
@@ -81,7 +85,6 @@
     "machine learning research",
     "deep learning research",
     "research engineer",
-    "quantitative research",
     "legal research",
     "medical research",
     "hardware research",

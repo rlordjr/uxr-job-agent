@@ -146,7 +146,7 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     is_remote = "remote" in normalize_text(location) or "remote" in normalize_text(text_blob)
 
     if not is_us:
-        work_score = 10  # Heavy penalty for non-US when US-only is preferred
+        work_score = 0  # Zero out geography fit if non-US
     elif is_remote:
         work_score = 100
     else:
@@ -166,6 +166,11 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     weighted_total = sum(_match_score_for_category(category_scores[name], WEIGHTS[name]) for name in WEIGHTS)
+    
+    # If location is explicitly foreign, cap score to prevent false 'Strong fit'
+    if not is_us:
+        weighted_total = min(weighted_total, 65.0)
+
     total = round(weighted_total, 2)
 
     fit_tier = "Reject"

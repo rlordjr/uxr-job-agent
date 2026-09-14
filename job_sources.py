@@ -1,3 +1,4 @@
+import concurrent.futures
 import html
 import json
 import re
@@ -21,7 +22,7 @@ def clean_html(raw_html: str) -> str:
 
 def fetch_greenhouse_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any]]:
     url = f"https://boards-api.greenhouse.io/v1/boards/{company_slug}/jobs?content=true"
-    response = requests.get(url, headers=HEADERS, timeout=30)
+    response = requests.get(url, headers=HEADERS, timeout=8)
     response.raise_for_status()
     payload = response.json()
 
@@ -53,7 +54,7 @@ def fetch_greenhouse_jobs(company_slug: str, company_name: str) -> List[Dict[str
 
 def fetch_lever_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any]]:
     url = f"https://api.lever.co/v0/postings/{company_slug}?mode=json"
-    response = requests.get(url, headers=HEADERS, timeout=30)
+    response = requests.get(url, headers=HEADERS, timeout=8)
     response.raise_for_status()
     payload = response.json()
 
@@ -80,7 +81,7 @@ def fetch_lever_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any
 
 def fetch_ashby_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any]]:
     url = f"https://api.ashbyhq.com/posting-api/job-board/{company_slug}"
-    response = requests.get(url, headers=HEADERS, timeout=30)
+    response = requests.get(url, headers=HEADERS, timeout=8)
     response.raise_for_status()
     payload = response.json()
 
@@ -108,24 +109,30 @@ def fetch_ashby_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any
     return jobs
 
 
+def _fetch_single_source(source: Dict[str, Any]) -> List[Dict[str, Any]]:
+    source_type = source.get("type", "").lower()
+    company_slug = source.get("company")
+    company_name = source.get("name") or company_slug
+    try:
+        if source_type == "greenhouse":
+            return fetch_greenhouse_jobs(company_slug, company_name)
+        elif source_type == "lever":
+            return fetch_lever_jobs(company_slug, company_name)
+        elif source_type == "ashby":
+            return fetch_ashby_jobs(company_slug, company_name)
+        return []
+    except Exception as exc:
+        print(f"[WARN] Failed to fetch {company_name} ({source_type}): {exc}")
+        return []
+
+
 def fetch_jobs_from_config(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     all_jobs: List[Dict[str, Any]] = []
-    for source in config.get("job_sources", []):
-        source_type = source.get("type", "").lower()
-        company_slug = source.get("company")
-        company_name = source.get("name") or company_slug
-        try:
-            if source_type == "greenhouse":
-                jobs = fetch_greenhouse_jobs(company_slug, company_name)
-            elif source_type == "lever":
-                jobs = fetch_lever_jobs(company_slug, company_name)
-            elif source_type == "ashby":
-                jobs = fetch_ashby_jobs(company_slug, company_name)
-            else:
-                jobs = []
-        except Exception as exc:
-            print(f"[WARN] Failed to fetch {company_name} ({source_type}): {exc}")
-            continue
-        all_jobs.extend(jobs)
+    sources = config.get("job_sources", [])
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        results = executor.map(_fetch_single_source, sources)
+        for job_list in results:
+            all_jobs.extend(job_list)
 
     return all_jobs

@@ -144,20 +144,25 @@ def main() -> None:
 
     config = load_json(CONFIG_PATH)
     email_cfg = config.setdefault("email", {})
+    
+    # Track which settings were detected
+    sources_found = []
+
     if os.environ.get("EMAIL_ENABLED", "").lower() in {"1", "true", "yes"}:
         email_cfg["enabled"] = True
+        sources_found.append("EMAIL_ENABLED=true")
 
-    # 1. Check if user provided all email configuration as one JSON secret or text block
+    # 1. Check if user provided all email configuration as one secret
     combo_secret = os.environ.get("EMAIL_JOB_RESULTS", "")
     if combo_secret:
         email_cfg["enabled"] = True
+        sources_found.append("EMAIL_JOB_RESULTS secret found")
         try:
             parsed = json.loads(combo_secret)
             if isinstance(parsed, dict):
                 for k, v in parsed.items():
                     email_cfg[k.lower()] = v
         except Exception:
-            # If not JSON, parse lines like KEY=VALUE or KEY: VALUE
             for line in combo_secret.splitlines():
                 if "=" in line:
                     k, v = line.split("=", 1)
@@ -193,6 +198,11 @@ def main() -> None:
         if env_value:
             email_cfg[key] = env_value
             email_cfg["enabled"] = True
+            sources_found.append(f"{env_name} found")
+
+    print(f"[DEBUG] Email configuration status: enabled={email_cfg.get('enabled')}")
+    print(f"[DEBUG] Detected sources: {sources_found if sources_found else 'None (all env variables were empty)'}")
+    print(f"[DEBUG] Fields present -> server: {bool(email_cfg.get('smtp_server'))}, port: {email_cfg.get('smtp_port')}, user: {bool(email_cfg.get('username'))}, pass: {bool(email_cfg.get('password'))}, to: {bool(email_cfg.get('to_address'))}")
 
     profile = load_profile(PROFILE_PATH)
 

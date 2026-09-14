@@ -146,6 +146,41 @@ def main() -> None:
     email_cfg = config.setdefault("email", {})
     if os.environ.get("EMAIL_ENABLED", "").lower() in {"1", "true", "yes"}:
         email_cfg["enabled"] = True
+
+    # 1. Check if user provided all email configuration as one JSON secret or text block
+    combo_secret = os.environ.get("EMAIL_JOB_RESULTS", "")
+    if combo_secret:
+        email_cfg["enabled"] = True
+        try:
+            parsed = json.loads(combo_secret)
+            if isinstance(parsed, dict):
+                for k, v in parsed.items():
+                    email_cfg[k.lower()] = v
+        except Exception:
+            # If not JSON, parse lines like KEY=VALUE or KEY: VALUE
+            for line in combo_secret.splitlines():
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                elif ":" in line:
+                    k, v = line.split(":", 1)
+                else:
+                    continue
+                k_clean = k.strip().lower().replace("smtp_", "").replace("email_", "")
+                v_clean = v.strip().strip("\"'")
+                if k_clean in ["server", "host"]:
+                    email_cfg["smtp_server"] = v_clean
+                elif k_clean == "port":
+                    email_cfg["smtp_port"] = v_clean
+                elif k_clean in ["username", "user"]:
+                    email_cfg["username"] = v_clean
+                elif k_clean in ["password", "pass", "app_password"]:
+                    email_cfg["password"] = v_clean
+                elif k_clean in ["from", "from_address", "sender"]:
+                    email_cfg["from_address"] = v_clean
+                elif k_clean in ["to", "to_address", "recipient"]:
+                    email_cfg["to_address"] = v_clean
+
+    # 2. Check individual environment variables
     for key, env_name in {
         "smtp_server": "SMTP_SERVER",
         "smtp_port": "SMTP_PORT",
@@ -157,6 +192,8 @@ def main() -> None:
         env_value = os.environ.get(env_name)
         if env_value:
             email_cfg[key] = env_value
+            email_cfg["enabled"] = True
+
     profile = load_profile(PROFILE_PATH)
 
     all_jobs = fetch_jobs_from_config(config)

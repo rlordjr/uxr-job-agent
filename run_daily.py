@@ -98,18 +98,24 @@ def send_email_summary(summary: str, config: Dict[str, Any]) -> None:
         print("[INFO] Email is disabled in config.json")
         return
 
-    msg = EmailMessage()
-    msg["Subject"] = "Daily UX Research Job Digest"
-    msg["From"] = email_cfg.get("from_address")
-    msg["To"] = email_cfg.get("to_address")
-    msg.set_content(summary)
-
+    from_addr = email_cfg.get("from_address")
+    to_addr = email_cfg.get("to_address")
     smtp_server = email_cfg.get("smtp_server")
     smtp_port = int(email_cfg.get("smtp_port", 587))
     username = email_cfg.get("username")
     password = (email_cfg.get("password") or "").strip().replace(" ", "")
 
-    print(f"[INFO] Attempting to send email via {smtp_server}:{smtp_port} from {email_cfg.get('from_address')} to {email_cfg.get('to_address')} (user: {username})")
+    print(f"[INFO] Email config summary: server={smtp_server}, port={smtp_port}, user={username}, from={from_addr}, to={to_addr}")
+
+    if not to_addr or not from_addr or not username or not password:
+        print(f"[ERROR] Missing required email fields! from={bool(from_addr)}, to={bool(to_addr)}, user={bool(username)}, pass={bool(password)}")
+        return
+
+    msg = EmailMessage()
+    msg["Subject"] = "Daily UX Research Job Digest"
+    msg["From"] = from_addr
+    msg["To"] = to_addr
+    msg.set_content(summary)
 
     try:
         with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
@@ -118,8 +124,11 @@ def send_email_summary(summary: str, config: Dict[str, Any]) -> None:
             server.starttls()
             server.ehlo()
             server.login(username, password)
-            server.send_message(msg)
-        print("[INFO] Daily email sent successfully.")
+            send_errs = server.send_message(msg)
+            if send_errs:
+                print(f"[WARN] send_message returned recipient errors: {send_errs}")
+            else:
+                print("[INFO] Daily email sent successfully (server accepted message).")
     except Exception as exc:
         print(f"[ERROR] Failed to send email: {type(exc).__name__}: {exc}")
 

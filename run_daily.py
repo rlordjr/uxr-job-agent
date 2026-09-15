@@ -124,7 +124,7 @@ def load_previous_jobs() -> Dict[str, Any]:
     return {"jobs": []}
 
 
-def send_email_summary(summary: str, config: Dict[str, Any]) -> None:
+def send_email_summary(summary: str, config: Dict[str, Any], attachment_path: str = None) -> None:
     email_cfg = config.get("email", {})
     if not email_cfg.get("enabled"):
         print("[INFO] Email is disabled in config.json")
@@ -148,6 +148,22 @@ def send_email_summary(summary: str, config: Dict[str, Any]) -> None:
     msg["From"] = from_addr
     msg["To"] = to_addr
     msg.set_content(summary)
+
+    if attachment_path and os.path.exists(attachment_path):
+        try:
+            with open(attachment_path, "rb") as f:
+                csv_bytes = f.read()
+            msg.add_attachment(
+                csv_bytes,
+                maintype="text",
+                subtype="csv",
+                filename=os.path.basename(attachment_path),
+            )
+            print(f"[INFO] Attached {attachment_path} to email.")
+        except Exception as exc:
+            print(f"[WARN] Failed to attach {attachment_path}: {exc}")
+    elif attachment_path:
+        print(f"[WARN] Attachment path not found, skipping attachment: {attachment_path}")
 
     try:
         with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
@@ -335,7 +351,7 @@ def main() -> None:
 
     digest = build_digest(new_jobs or top_results)
     if config.get("email", {}).get("enabled"):
-        send_email_summary(digest, config)
+        send_email_summary(digest, config, attachment_path=TOP_MATCHES_PATH)
     print(digest)
 
     print(f"[INFO] Found {len(top_results)} relevant jobs. {len(new_jobs)} are new since the last run.")

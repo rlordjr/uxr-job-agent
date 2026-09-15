@@ -1,4 +1,11 @@
 {
+  "adzuna_search_queries": [
+    "UX Researcher",
+    "User Researcher",
+    "Design Researcher",
+    "Qualitative Researcher",
+    "User Experience Researcher"
+  ],
   "job_sources": [
     { "type": "greenhouse", "company": "figma", "name": "Figma" },
     { "type": "greenhouse", "company": "dropbox", "name": "Dropbox" },

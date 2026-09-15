@@ -1,6 +1,7 @@
 import concurrent.futures
 import html
 import json
+import os
 import re
 from typing import Any, Dict, List
 
@@ -10,6 +11,12 @@ import requests
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; ralph-job-agent/1.0; +https://example.com)"
 }
+
+# Adzuna covers these countries for our target regions (Caribbean/most of South America
+# aren't in Adzuna's supported country list, so US/Canada/Mexico give the best available reach).
+ADZUNA_COUNTRIES = ["us", "ca", "mx"]
+ADZUNA_RESULTS_PER_PAGE = 50
+ADZUNA_MAX_PAGES = 2
 
 
 def clean_html(raw_html: str) -> str:
@@ -109,6 +116,73 @@ def fetch_ashby_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any
     return jobs
 
 
+def fetch_adzuna_jobs(country: str, query: str, app_id: str, app_key: str) -> List[Dict[str, Any]]:
+    jobs = []
+    for page in range(1, ADZUNA_MAX_PAGES + 1):
+        url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/{page}"
+        params = {
+            "app_id": app_id,
+            "app_key": app_key,
+            "what": query,
+            "results_per_page": ADZUNA_RESULTS_PER_PAGE,
+            "content-type": "application/json",
+        }
+        response = requests.get(url, headers=HEADERS, params=params, timeout=10)
+        response.raise_for_status()
+        payload = response.json()
+        results = payload.get("results", [])
+        if not results:
+            break
+
+        for item in results:
+            company = (item.get("company") or {}).get("display_name") or "Unknown"
+            location = (item.get("location") or {}).get("display_name") or "Unknown"
+            description = item.get("description") or ""
+
+            jobs.append({
+                "title": item.get("title"),
+                "company": company,
+                "location": location,
+                "description": description,
+                "source": f"adzuna-{country}",
+                "url": item.get("redirect_url") or "",
+                "salary": item.get("salary_min") or "",
+                "posted_at": item.get("created") or "",
+                "raw": item,
+            })
+
+        if len(results) < ADZUNA_RESULTS_PER_PAGE:
+            break
+    return jobs
+
+
+def _fetch_adzuna_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    app_id = os.getenv("ADZUNA_APP_ID")
+    app_key = os.getenv("ADZUNA_APP_KEY")
+    if not app_id or not app_key:
+        print("[INFO] Adzuna credentials not configured (ADZUNA_APP_ID/ADZUNA_APP_KEY); skipping aggregator search.")
+        return []
+
+    queries = config.get("adzuna_search_queries") or ["UX Researcher", "User Researcher", "Design Researcher"]
+    tasks = [(country, query) for country in ADZUNA_COUNTRIES for query in queries]
+
+    jobs: List[Dict[str, Any]] = []
+
+    def _run(task):
+        country, query = task
+        try:
+            return fetch_adzuna_jobs(country, query, app_id, app_key)
+        except Exception as exc:
+            print(f"[WARN] Failed to fetch Adzuna jobs ({country}, '{query}'): {exc}")
+            return []
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        for job_list in executor.map(_run, tasks):
+            jobs.extend(job_list)
+
+    return jobs
+
+
 def _fetch_single_source(source: Dict[str, Any]) -> List[Dict[str, Any]]:
     source_type = source.get("type", "").lower()
     company_slug = source.get("company")
@@ -134,5 +208,7 @@ def fetch_jobs_from_config(config: Dict[str, Any]) -> List[Dict[str, Any]]:
         results = executor.map(_fetch_single_source, sources)
         for job_list in results:
             all_jobs.extend(job_list)
+
+    all_jobs.extend(_fetch_adzuna_all(config))
 
     return all_jobs

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UX Research Job Digest — Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --strong-fit: #1a7f37;
+      --good-fit: #9a6700;
+      --marginal-fit: #6e7781;
+      --border: #d0d7de;
+      --bg: #ffffff;
+      --bg-alt: #f6f8fa;
+      --text: #1f2328;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: var(--bg-alt);
+      color: var(--text);
+    }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .subtitle { color: #57606a; margin-bottom: 20px; font-size: 14px; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .controls label {
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+      color: #57606a;
+      gap: 4px;
+    }
+    .controls input, .controls select {
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      vertical-align: top;
+    }
+    th {
+      background: var(--bg-alt);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    th:hover { background: #eaeef2; }
+    tr:last-child td { border-bottom: none; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .tier {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+    }
+    .tier-strong { background: var(--strong-fit); }
+    .tier-good { background: var(--good-fit); }
+    .tier-marginal { background: var(--marginal-fit); }
+    .signals { font-size: 12px; color: #57606a; margin-top: 4px; }
+    .signals strong { color: var(--text); }
+    .meta { font-size: 12px; color: #57606a; margin-bottom: 12px; }
+    .empty { padding: 40px; text-align: center; color: #57606a; }
+  </style>
+</head>
+<body>
+  <h1>UX Research Job Digest</h1>
+  <div class="subtitle">Rolling view of top matches across recent daily runs.</div>
+
+  <div class="controls">
+    <label>
+      Window
+      <select id="windowDays">
+        <option value="1">Today only</option>
+        <option value="3">Last 3 days</option>
+        <option value="7" selected>Last 7 days</option>
+        <option value="14">Last 14 days</option>
+        <option value="30">Last 30 days</option>
+      </select>
+    </label>
+    <label>
+      Show top
+      <select id="topN">
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+        <option value="9999">All</option>
+      </select>
+    </label>
+    <label>
+      Min fit score
+      <input type="number" id="minScore" value="55" min="0" max="100" step="1" />
+    </label>
+    <label>
+      Region
+      <select id="regionFilter">
+        <option value="">All regions</option>
+        <option value="united_states">United States</option>
+        <option value="canada_caribbean">Canada / Caribbean</option>
+        <option value="mexico_south_america">Mexico / South America</option>
+      </select>
+    </label>
+    <label>
+      Company search
+      <input type="text" id="companySearch" placeholder="e.g. Reddit" />
+    </label>
+  </div>
+
+  <div class="meta" id="metaLine">Loading...</div>
+  <div id="tableContainer"></div>
+
+  <script>
+    const REGION_LABELS = {
+      united_states: "United States",
+      canada_caribbean: "Canada / Caribbean",
+      mexico_south_america: "Mexico / South America",
+    };
+
+    const TIER_CLASS = {
+      "Strong fit": "tier-strong",
+      "Good fit": "tier-good",
+      "Marginal fit": "tier-marginal",
+    };
+
+    let historyData = { runs: [] };
+    let sortKey = "match_score";
+    let sortDir = -1;
+
+    async function loadData() {
+      try {
+        const res = await fetch("data/history.json?_=" + Date.now());
+        historyData = await res.json();
+      } catch (e) {
+        historyData = { runs: [] };
+      }
+      render();
+    }
+
+    function getFilteredJobs() {
+      const windowDays = parseInt(document.getElementById("windowDays").value, 10);
+      const topN = parseInt(document.getElementById("topN").value, 10);
+      const minScore = parseFloat(document.getElementById("minScore").value) || 0;
+      const region = document.getElementById("regionFilter").value;
+      const companyQuery = document.getElementById("companySearch").value.trim().toLowerCase();
+
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - windowDays + 1);
+      const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+      const relevantRuns = (historyData.runs || []).filter((r) => r.run_date >= cutoffStr);
+
+      // Dedupe by title+company, keeping the highest-scoring / most-recently-seen instance.
+      const byKey = new Map();
+      for (const run of relevantRuns) {
+        for (const job of run.jobs || []) {
+          const key = (job.title || "").toLowerCase() + "|" + (job.company || "").toLowerCase();
+          const existing = byKey.get(key);
+          if (!existing || (job.match_score || 0) > (existing.match_score || 0)) {
+            byKey.set(key, { ...job, last_seen_run: run.run_date });
+          }
+        }
+      }
+
+      let jobs = Array.from(byKey.values());
+      jobs = jobs.filter((j) => (j.match_score || 0) >= minScore);
+      if (region) jobs = jobs.filter((j) => j.region === region);
+      if (companyQuery) jobs = jobs.filter((j) => (j.company || "").toLowerCase().includes(companyQuery));
+
+      jobs.sort((a, b) => {
+        let av = a[sortKey], bv = b[sortKey];
+        if (sortKey === "match_score") { av = av || 0; bv = bv || 0; }
+        else { av = (av || "").toString().toLowerCase(); bv = (bv || "").toString().toLowerCase(); }
+        if (av < bv) return -1 * sortDir;
+        if (av > bv) return 1 * sortDir;
+        return 0;
+      });
+
+      return jobs.slice(0, topN);
+    }
+
+    function render() {
+      const jobs = getFilteredJobs();
+      const meta = document.getElementById("metaLine");
+      const lastUpdated = historyData.last_updated ? new Date(historyData.last_updated).toLocaleString() : "Unknown";
+      meta.textContent = `Showing ${jobs.length} job(s). Data last updated: ${lastUpdated}`;
+
+      const container = document.getElementById("tableContainer");
+      if (jobs.length === 0) {
+        container.innerHTML = '<div class="empty">No matches for the current filters.</div>';
+        return;
+      }
+
+      const rows = jobs.map((j) => {
+        const tierClass = TIER_CLASS[j.fit_tier] || "tier-marginal";
+        const signals = j.signals || {};
+        const signalLines = [];
+        if (signals.role) signalLines.push(`<strong>Role:</strong> ${escapeHtml(signals.role)}`);
+        if (signals.seniority) signalLines.push(`<strong>Seniority:</strong> ${escapeHtml(signals.seniority)}`);
+        if (signals.methods) signalLines.push(`<strong>Methods:</strong> ${escapeHtml(signals.methods)}`);
+        if (signals.leadership) signalLines.push(`<strong>Leadership:</strong> ${escapeHtml(signals.leadership)}`);
+
+        return `
+          <tr>
+            <td>
+              <a href="${escapeHtml(j.url || '#')}" target="_blank" rel="noopener">${escapeHtml(j.title || 'Untitled')}</a>
+              <div class="signals">${signalLines.join("<br/>")}</div>
+            </td>
+            <td>${escapeHtml(j.company || '')}</td>
+            <td>${escapeHtml(j.location || '')}</td>
+            <td>${escapeHtml(REGION_LABELS[j.region] || j.region || '')}</td>
+            <td>${escapeHtml(j.posted_at || '')}</td>
+            <td><span class="tier ${tierClass}">${escapeHtml(j.fit_tier || '')}</span></td>
+            <td>${(j.match_score || 0).toFixed(1)}</td>
+            <td>${escapeHtml(j.last_seen_run || '')}</td>
+          </tr>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th data-key="title">Title</th>
+              <th data-key="company">Company</th>
+              <th data-key="location">Location</th>
+              <th data-key="region">Region</th>
+              <th data-key="posted_at">Date Posted</th>
+              <th data-key="fit_tier">Fit Tier</th>
+              <th data-key="match_score">Score</th>
+              <th data-key="last_seen_run">Last Seen</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      container.querySelectorAll("th[data-key]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const key = th.getAttribute("data-key");
+          if (sortKey === key) sortDir *= -1;
+          else { sortKey = key; sortDir = -1; }
+          render();
+        });
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    ["windowDays", "topN", "minScore", "regionFilter", "companySearch"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", render);
+      document.getElementById(id).addEventListener("change", render);
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

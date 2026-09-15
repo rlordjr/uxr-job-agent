@@ -14,17 +14,90 @@ WEIGHTS = {
 }
 
 US_LOCATIONS = [
-    "united states", "usa", "us", "u.s.", "remote - us", "remote, us",
+    "united states", "usa", "u.s.", "remote - us", "remote, us",
     "remote - united states", "remote (us)", "remote (united states)",
     "san francisco", "new york", "austin", "seattle", "atlanta", "chicago",
-    "denver", "los angeles", "boston", "ca", "ny", "ga", "tx", "wa", "co", "il", "ma"
+    "denver", "los angeles", "boston"
 ]
 
-NON_US_LOCATIONS = [
-    "india", "bengaluru", "bangalore", "london", "dublin", "germany", "berlin",
-    "singapore", "sydney", "australia", "uk", "united kingdom", "ireland", "japan",
-    "tokyo", "france", "paris", "netherlands", "amsterdam", "canada", "toronto", "vancouver", "ontario"
+# Standalone 2-letter codes need word-boundary matching, handled separately from US_LOCATIONS.
+US_STATE_CODES = ["ca", "ny", "ga", "tx", "wa", "co", "il", "ma", "us"]
+
+CANADA_CARIBBEAN_LOCATIONS = [
+    "canada", "toronto", "vancouver", "montreal", "montréal", "ottawa", "calgary",
+    "ontario", "quebec", "québec", "british columbia", "alberta", "manitoba",
+    "jamaica", "bahamas", "puerto rico", "dominican republic", "trinidad and tobago",
+    "trinidad", "tobago", "barbados", "cuba", "haiti", "aruba", "curacao", "curaçao",
+    "caribbean", "bermuda", "cayman islands"
 ]
+
+MEXICO_SOUTH_AMERICA_LOCATIONS = [
+    "mexico", "méxico", "mexico city", "cdmx", "guadalajara", "monterrey",
+    "brazil", "brasil", "sao paulo", "são paulo", "rio de janeiro",
+    "argentina", "buenos aires", "chile", "santiago",
+    "colombia", "bogota", "bogotá", "medellin", "medellín",
+    "peru", "perú", "lima", "ecuador", "quito", "uruguay", "montevideo",
+    "paraguay", "asuncion", "asunción", "bolivia", "la paz", "venezuela", "caracas",
+    "south america", "latam", "latin america"
+]
+
+EUROPE_LOCATIONS = [
+    "europe", "emea", "uk", "united kingdom", "london", "manchester", "ireland",
+    "dublin", "germany", "berlin", "munich", "france", "paris", "netherlands",
+    "amsterdam", "spain", "madrid", "barcelona", "italy", "rome", "milan",
+    "portugal", "lisbon", "poland", "warsaw", "sweden", "stockholm", "denmark",
+    "copenhagen", "norway", "oslo", "finland", "helsinki", "switzerland", "zurich",
+    "austria", "vienna", "belgium", "brussels", "romania", "bucharest", "czech",
+    "prague", "hungary", "budapest", "greece", "athens"
+]
+
+ASIA_LOCATIONS = [
+    "asia", "apac", "india", "bengaluru", "bangalore", "mumbai", "delhi", "hyderabad",
+    "pune", "singapore", "japan", "tokyo", "china", "beijing", "shanghai",
+    "shenzhen", "hong kong", "korea", "seoul", "philippines", "manila",
+    "vietnam", "hanoi", "ho chi minh", "indonesia", "jakarta", "malaysia",
+    "kuala lumpur", "thailand", "bangkok", "taiwan", "taipei", "pakistan",
+    "bangladesh", "sri lanka", "israel", "tel aviv", "uae", "dubai", "abu dhabi",
+    "saudi arabia"
+]
+
+OTHER_REGION_LOCATIONS = [
+    "australia", "sydney", "melbourne", "new zealand", "auckland",
+    "africa", "south africa", "cape town", "johannesburg", "nigeria", "lagos",
+    "kenya", "nairobi", "egypt", "cairo", "oceania"
+]
+
+
+def classify_region(location: str) -> str:
+    """Classify a job location into a coarse region bucket.
+
+    Returns one of: 'united_states', 'canada_caribbean', 'mexico_south_america',
+    'europe', 'asia', 'other', 'unknown'.
+    """
+    clean_loc = normalize_text(location)
+    if not clean_loc:
+        return "unknown"
+
+    tokens = re.findall(r"[a-z]+", clean_loc)
+
+    if any(loc in clean_loc for loc in US_LOCATIONS) or any(code in tokens for code in US_STATE_CODES):
+        return "united_states"
+    if any(loc in clean_loc for loc in CANADA_CARIBBEAN_LOCATIONS):
+        return "canada_caribbean"
+    if any(loc in clean_loc for loc in MEXICO_SOUTH_AMERICA_LOCATIONS):
+        return "mexico_south_america"
+    if any(loc in clean_loc for loc in EUROPE_LOCATIONS):
+        return "europe"
+    if any(loc in clean_loc for loc in ASIA_LOCATIONS):
+        return "asia"
+    if any(loc in clean_loc for loc in OTHER_REGION_LOCATIONS):
+        return "other"
+    if "remote" in clean_loc:
+        return "unknown"  # Remote with no discernible country/region
+    return "unknown"
+
+
+ALLOWED_REGIONS = {"united_states", "canada_caribbean", "mexico_south_america"}
 
 
 def normalize_text(value: Any) -> str:
@@ -64,15 +137,7 @@ def _match_score_for_category(score: float, weight: int) -> float:
 
 
 def is_us_location(location: str) -> bool:
-    clean_loc = normalize_text(location)
-    if not clean_loc:
-        return True  # Give benefit of doubt if unknown
-
-    # If explicitly non-US and no mention of US
-    if any(non_us in clean_loc for non_us in NON_US_LOCATIONS) and not any(us in clean_loc for us in ["united states", "usa", "us"]):
-        return False
-
-    return any(us in clean_loc for us in US_LOCATIONS)
+    return classify_region(location) == "united_states"
 
 
 def _find_matched_keywords(text: str, keywords: List[str]) -> List[str]:
@@ -164,16 +229,23 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     matched_industries = _find_matched_keywords(text_blob, industry_terms)
     industry_score = min(100, max(70, int(70 + (len(matched_industries) * 10))))
 
-    # 6. Work Arrangement & Geography Fit (5%)
-    is_us = is_us_location(location)
+    # 6. Work Arrangement & Geography Fit (5%) — priority: US > Canada/Caribbean > Mexico/South America
+    region = classify_region(location)
     is_remote = "remote" in normalize_text(location) or "remote" in normalize_text(text_blob)
 
-    if not is_us:
-        work_score = 0  # Zero out geography fit if non-US
-    elif is_remote:
-        work_score = 100
+    region_cap = None
+    if region == "united_states":
+        work_score = 100 if is_remote else 85
+    elif region == "canada_caribbean":
+        work_score = 60 if is_remote else 50
+        region_cap = 75.0
+    elif region == "mexico_south_america":
+        work_score = 30 if is_remote else 25
+        region_cap = 60.0
     else:
-        work_score = 85
+        # Europe, Asia, or other/unknown regions are outside the target geography.
+        work_score = 0
+        region_cap = 65.0
 
     # 7. Compensation Fit (5%)
     compensation_score = 100
@@ -189,10 +261,10 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     weighted_total = sum(_match_score_for_category(category_scores[name], WEIGHTS[name]) for name in WEIGHTS)
-    
-    # If location is explicitly foreign, cap score to prevent false 'Strong fit'
-    if not is_us:
-        weighted_total = min(weighted_total, 65.0)
+
+    # Cap score by region priority tier to prevent lower-priority regions from outranking the US.
+    if region_cap is not None:
+        weighted_total = min(weighted_total, region_cap)
 
     total = round(weighted_total, 2)
 
@@ -208,6 +280,7 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
         "title": title,
         "company": company,
         "location": location,
+        "region": region,
         "posted_at": posted_at,
         "match_score": total,
         "category_scores": category_scores,

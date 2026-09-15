@@ -6,7 +6,7 @@ from email.message import EmailMessage
 from typing import Any, Dict, Iterable, List
 
 from job_sources import fetch_jobs_from_config
-from scorer import load_profile, score_job
+from scorer import ALLOWED_REGIONS, load_profile, score_job
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 PROFILE_PATH = os.path.join(os.path.dirname(__file__), "candidate_profile.json")
@@ -264,12 +264,17 @@ def main() -> None:
     all_jobs = fetch_jobs_from_config(config)
     all_jobs = dedupe_jobs(all_jobs)
 
+    # Region priority order for sorting: US first, then Canada/Caribbean, then Mexico/South America.
+    REGION_PRIORITY = {"united_states": 0, "canada_caribbean": 1, "mexico_south_america": 2}
+
     scored_jobs = []
     for job in all_jobs:
         title = job.get("title") or ""
         if not is_target_role(title, config):
             continue
         result = score_job(job, profile)
+        if result.get("region") not in ALLOWED_REGIONS:
+            continue  # Exclude Europe, Asia, and any other non-Americas/unclear locations
         result["url"] = job.get("url") or ""
         result["match_reasons"] = (
             f"role match: {result['category_scores'].get('role_alignment', 0)}; "
@@ -278,7 +283,10 @@ def main() -> None:
         )
         scored_jobs.append(result)
 
-    scored_jobs = sorted(scored_jobs, key=lambda item: item.get("match_score", 0), reverse=True)
+    scored_jobs = sorted(
+        scored_jobs,
+        key=lambda item: (REGION_PRIORITY.get(item.get("region"), 3), -item.get("match_score", 0)),
+    )
     top_results = [job for job in scored_jobs if job.get("match_score", 0) >= 55][:20]
 
     save_json(RESULTS_PATH, top_results)

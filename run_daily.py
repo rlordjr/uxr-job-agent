@@ -184,7 +184,7 @@ def build_digest(results: List[Dict[str, Any]]) -> str:
         lines.append("No strong or moderate matches were found.")
         return "\n".join(lines)
 
-    for idx, item in enumerate(results[:10], start=1):
+    for idx, item in enumerate(results[:20], start=1):
         posted_str = format_posted_date(item.get("posted_at"))
         lines.append(f"{idx}. {item.get('title')} | {item.get('company')}")
         lines.append(f"   • Location: {item.get('location')}")

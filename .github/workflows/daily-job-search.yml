@@ -58,6 +58,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No dashboard data changes to commit."
           else
-            git commit -m "Update dashboard history [skip ci]"
+            git commit -m "Update dashboard history"
             git push
           fi

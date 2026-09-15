@@ -228,7 +228,7 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     ]
     matched_methods = _find_matched_keywords(text_blob, method_keywords)
     methods_score = min(100, int((len(matched_methods) / 4) * 100))
-    methods_detail = f"Matched methods: {', '.join(matched_methods[:5])}" if matched_methods else "No specific qualitative methods highlighted"
+    methods_detail = ', '.join(matched_methods[:5]) if matched_methods else "No specific qualitative methods highlighted"
 
     # 4. Strategic Influence & Leadership Fit (15%)
     strategic_keywords = [

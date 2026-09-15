@@ -26,16 +26,29 @@ def load_json(path: str) -> Dict[str, Any]:
         return json.load(f)
 
 
+def _normalize_dedupe_key(value: str) -> str:
+    return (value or "").strip().lower()
+
+
 def dedupe_jobs(jobs: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    seen = set()
-    unique = []
+    """Dedupe by title+company, ignoring location, since aggregators like Adzuna often
+    index the same posting once per nearby city/suburb. Keeps the most recently posted
+    variant among duplicates (falls back to first-seen if dates are missing/unparseable).
+    """
+    best_by_key: Dict[tuple, Dict[str, Any]] = {}
     for job in jobs:
-        key = (job.get("title") or "", job.get("company") or "", job.get("url") or "", job.get("location") or "")
-        if key in seen:
+        key = (_normalize_dedupe_key(job.get("title")), _normalize_dedupe_key(job.get("company")))
+        existing = best_by_key.get(key)
+        if existing is None:
+            best_by_key[key] = job
             continue
-        seen.add(key)
-        unique.append(job)
-    return unique
+        if _posted_at_sort_key(job) > _posted_at_sort_key(existing):
+            best_by_key[key] = job
+    return list(best_by_key.values())
+
+
+def _posted_at_sort_key(job: Dict[str, Any]) -> str:
+    return str(job.get("posted_at") or "")
 
 
 def is_target_role(job_title: str, config: Dict[str, Any]) -> bool:

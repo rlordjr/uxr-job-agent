@@ -145,6 +145,7 @@ def fetch_adzuna_jobs(country: str, query: str, app_id: str, app_key: str) -> Li
                 "location": location,
                 "description": description,
                 "source": f"adzuna-{country}",
+                "source_country": country,
                 "url": item.get("redirect_url") or "",
                 "salary": item.get("salary_min") or "",
                 "posted_at": item.get("created") or "",

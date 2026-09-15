@@ -99,6 +99,23 @@ def classify_region(location: str) -> str:
 
 ALLOWED_REGIONS = {"united_states", "canada_caribbean", "mexico_south_america"}
 
+# Maps an explicit source country hint (e.g. Adzuna's known request country) to our region buckets,
+# bypassing unreliable text-guessing for granular locations like "Mableton, Cobb County" with no
+# state/country name that classify_region() can't recognize.
+COUNTRY_CODE_TO_REGION = {
+    "us": "united_states",
+    "ca": "canada_caribbean",
+    "mx": "mexico_south_america",
+}
+
+
+def resolve_region(location: str, source_country: str = None) -> str:
+    if source_country:
+        mapped = COUNTRY_CODE_TO_REGION.get(source_country.lower())
+        if mapped:
+            return mapped
+    return classify_region(location)
+
 
 def normalize_text(value: Any) -> str:
     if value is None:
@@ -155,6 +172,7 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     company = _coalesce(job.get("company"), "")
     location = _coalesce(job.get("location"), "")
     posted_at = _coalesce(job.get("posted_at"), "")
+    source_country = job.get("source_country")
     text_blob = f"{title} {description} {company} {location}"
     clean_title = normalize_text(title)
 
@@ -230,7 +248,7 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     industry_score = min(100, max(70, int(70 + (len(matched_industries) * 10))))
 
     # 6. Work Arrangement & Geography Fit (5%) — priority: US > Canada/Caribbean > Mexico/South America
-    region = classify_region(location)
+    region = resolve_region(location, source_country)
     is_remote = "remote" in normalize_text(location) or "remote" in normalize_text(text_blob)
 
     region_cap = None

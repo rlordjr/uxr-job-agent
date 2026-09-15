@@ -84,6 +84,25 @@ def is_target_role(job_title: str, config: Dict[str, Any]) -> bool:
     return False
 
 
+def passes_company_location_allowlist(job: Dict[str, Any], config: Dict[str, Any]) -> bool:
+    """Some companies (e.g. Cox Automotive via Adzuna) post the same role repeatedly across
+    many nearby suburbs, flooding results. If a company has an entry in
+    company_location_allowlist, only keep postings whose location matches one of the
+    allowed keywords (e.g. specific counties); other companies are unaffected.
+    """
+    allowlist = config.get("company_location_allowlist", {})
+    if not allowlist:
+        return True
+
+    company = (job.get("company") or "").strip().lower()
+    allowed_keywords = allowlist.get(company)
+    if not allowed_keywords:
+        return True
+
+    location = (job.get("location") or "").strip().lower()
+    return any(keyword.lower() in location for keyword in allowed_keywords)
+
+
 def save_json(path: str, payload: Any) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, ensure_ascii=False)
@@ -284,6 +303,8 @@ def main() -> None:
     for job in all_jobs:
         title = job.get("title") or ""
         if not is_target_role(title, config):
+            continue
+        if not passes_company_location_allowlist(job, config):
             continue
         result = score_job(job, profile)
         if result.get("region") not in ALLOWED_REGIONS:

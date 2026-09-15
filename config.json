@@ -6,6 +6,9 @@
     "Qualitative Researcher",
     "User Experience Researcher"
   ],
+  "company_location_allowlist": {
+    "cox automotive": ["cobb", "dekalb", "fulton"]
+  },
   "job_sources": [
     { "type": "greenhouse", "company": "figma", "name": "Figma" },
     { "type": "greenhouse", "company": "dropbox", "name": "Dropbox" },

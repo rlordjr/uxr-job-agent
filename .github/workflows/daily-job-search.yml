@@ -71,3 +71,4 @@ jobs:
             git commit -m "Update dashboard history"
             git push
           fi
+# Re-registered schedule trigger after history rewrite (2026-09-16T13:41:24Z)

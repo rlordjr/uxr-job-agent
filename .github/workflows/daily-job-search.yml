@@ -3,7 +3,7 @@ name: Daily Job Search
 on:
   workflow_dispatch:
   schedule:
-    - cron: '15 14 * * *'
+    - cron: '17 10 * * *'
 
 permissions:
   contents: write

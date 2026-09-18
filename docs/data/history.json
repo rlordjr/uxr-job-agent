@@ -1510,7 +1510,505 @@
           }
         }
       ]
+    },
+    {
+      "run_date": "2026-09-18",
+      "jobs": [
+        {
+          "title": "Senior UX Researcher, Consumer Product",
+          "company": "Reddit",
+          "location": "Remote - United States",
+          "region": "united_states",
+          "posted_at": "2026-08-28T12:02:44-04:00",
+          "match_score": 99.0,
+          "fit_tier": "Strong fit",
+          "url": "https://job-boards.greenhouse.io/reddit/jobs/8027458",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "interview, interviews, qualitative, usability, discovery",
+            "leadership": "Leadership signals: strategy, leadership, coaching, influence, cross-functional",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability",
+              "discovery",
+              "generative"
+            ],
+            "matched_leadership_list": [
+              "strategy",
+              "leadership",
+              "coaching",
+              "influence",
+              "cross-functional",
+              "partner",
+              "roadmap",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Staff UX Researcher, Payments Growth (Mixed Methods)",
+          "company": "Airbnb",
+          "location": "United States",
+          "region": "united_states",
+          "posted_at": "2026-09-18T04:55:55-04:00",
+          "match_score": 98.25,
+          "fit_tier": "Strong fit",
+          "url": "https://careers.airbnb.com/positions/8113284?gh_jid=8113284",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Staff",
+            "methods": "interview, qualitative, workshop, workshops, mixed methods",
+            "leadership": "Leadership signals: stakeholder, strategy, cross-functional, partner, decision",
+            "matched_methods_list": [
+              "interview",
+              "qualitative",
+              "workshop",
+              "workshops",
+              "mixed methods"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "cross-functional",
+              "partner",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Design Program Manager, Research Operations",
+          "company": "Stripe",
+          "location": "US",
+          "region": "united_states",
+          "posted_at": "2026-09-10T13:11:58-04:00",
+          "match_score": 91.75,
+          "fit_tier": "Strong fit",
+          "url": "https://stripe.com/jobs/search?gh_jid=8155390",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Manager",
+            "methods": "qualitative, enablement",
+            "leadership": "Leadership signals: leadership, coaching, cross-functional, partner, decision",
+            "matched_methods_list": [
+              "qualitative",
+              "enablement"
+            ],
+            "matched_leadership_list": [
+              "leadership",
+              "coaching",
+              "cross-functional",
+              "partner",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Staff Product Researcher",
+          "company": "Duolingo",
+          "location": "New York, NY",
+          "region": "united_states",
+          "posted_at": "2026-09-02T09:51:47-04:00",
+          "match_score": 89.75,
+          "fit_tier": "Strong fit",
+          "url": "https://careers.duolingo.com/jobs/8750456002?gh_jid=8750456002",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Staff",
+            "methods": "interview, discovery",
+            "leadership": "Leadership signals: stakeholder, strategy, leadership, influence, cross-functional",
+            "matched_methods_list": [
+              "interview",
+              "discovery"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "leadership",
+              "influence",
+              "cross-functional",
+              "partner",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "UX Researcher",
+          "company": "Insight Global",
+          "location": "Evanston, Cook County",
+          "region": "united_states",
+          "posted_at": "2026-05-07T20:22:54Z",
+          "match_score": 83.75,
+          "fit_tier": "Strong fit",
+          "url": "https://www.adzuna.com/details/5722267104?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews, usability, discovery, generative",
+            "leadership": "Leadership signals: strategy, decision",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "usability",
+              "discovery",
+              "generative"
+            ],
+            "matched_leadership_list": [
+              "strategy",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior User Researcher – Azure Data Products",
+          "company": "Team Red Dog",
+          "location": "Redmond, King County",
+          "region": "united_states",
+          "posted_at": "2026-06-19T02:55:00Z",
+          "match_score": 83.25,
+          "fit_tier": "Strong fit",
+          "url": "https://www.adzuna.com/details/5769098565?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "qualitative",
+            "leadership": "Leadership signals: strategy, influence, decision",
+            "matched_methods_list": [
+              "qualitative"
+            ],
+            "matched_leadership_list": [
+              "strategy",
+              "influence",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Lead UX Researcher",
+          "company": "Insight Global",
+          "location": "SoMa, San Francisco",
+          "region": "united_states",
+          "posted_at": "2026-08-20T19:33:03Z",
+          "match_score": 81.25,
+          "fit_tier": "Strong fit",
+          "url": "https://www.adzuna.com/land/ad/5850177005?se=eKh60m2z8RG88uD2ohwOjw&utm_medium=api&utm_source=f5f43b42&v=2FBCBD3DBA1FA22B3562B2365DB2D01C8497218E",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Lead",
+            "methods": "usability",
+            "leadership": "Leadership signals: strategy, cross-functional, partner",
+            "matched_methods_list": [
+              "usability"
+            ],
+            "matched_leadership_list": [
+              "strategy",
+              "cross-functional",
+              "partner"
+            ]
+          }
+        },
+        {
+          "title": "Principal, Design Researcher",
+          "company": "Walmart",
+          "location": "Bentonville, Benton County",
+          "region": "united_states",
+          "posted_at": "2026-09-16T06:54:57Z",
+          "match_score": 81.25,
+          "fit_tier": "Strong fit",
+          "url": "https://www.adzuna.com/land/ad/5886030105?se=FrOQ0m2z8RGk6dCvHcHp9g&utm_medium=api&utm_source=f5f43b42&v=F63F86C746F01BFB1CEA38B5E4038776A71D3405",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Principal",
+            "methods": "workshop, workshops",
+            "leadership": "Leadership signals: stakeholder, strategy",
+            "matched_methods_list": [
+              "workshop",
+              "workshops"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy"
+            ]
+          }
+        },
+        {
+          "title": "Principal, Design Researcher",
+          "company": "Sam's West",
+          "location": "Bentonville, Benton County",
+          "region": "united_states",
+          "posted_at": "2026-09-17T07:05:24Z",
+          "match_score": 81.25,
+          "fit_tier": "Strong fit",
+          "url": "https://www.adzuna.com/details/5887598125?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Principal",
+            "methods": "workshop, workshops",
+            "leadership": "Leadership signals: stakeholder, strategy",
+            "matched_methods_list": [
+              "workshop",
+              "workshops"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy"
+            ]
+          }
+        },
+        {
+          "title": "Senior Qualitative Researcher - Weather Forecasting with Security Clearance",
+          "company": "FWI ",
+          "location": "Goldsby, McClain County",
+          "region": "united_states",
+          "posted_at": "2026-09-03T17:19:26Z",
+          "match_score": 81.25,
+          "fit_tier": "Strong fit",
+          "url": "https://www.adzuna.com/land/ad/5869568491?se=ykmC0m2z8RGfZajoCiK01Q&utm_medium=api&utm_source=f5f43b42&v=1CCAE6A0F02D309AF2F66C03735F898EFEE6560F",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "interview, interviews, qualitative",
+            "leadership": "Leadership signals: decision",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative"
+            ],
+            "matched_leadership_list": [
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "UX Researcher",
+          "company": "Staff Perm",
+          "location": "Richardson, Dallas",
+          "region": "united_states",
+          "posted_at": "2026-07-03T01:47:48Z",
+          "match_score": 79.25,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/details/5786436224?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews, qualitative, usability",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Sr UX Researcher",
+          "company": "Insight Global",
+          "location": "Palo Alto, Santa Clara County",
+          "region": "united_states",
+          "posted_at": "2026-09-18T06:47:48Z",
+          "match_score": 77.5,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/land/ad/5889093799?se=eKh60m2z8RG88uD2ohwOjw&utm_medium=api&utm_source=f5f43b42&v=68270E088DCB5F06DFB676F18E089DF303CB6341",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Sr",
+            "methods": "qualitative",
+            "leadership": "Leadership signals: stakeholder, influence",
+            "matched_methods_list": [
+              "qualitative"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "influence"
+            ]
+          }
+        },
+        {
+          "title": "UX Researcher",
+          "company": "TEKsystems",
+          "location": "Morrisville, Wake County",
+          "region": "united_states",
+          "posted_at": "2026-09-17T07:07:07Z",
+          "match_score": 77.25,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/land/ad/5887602725?se=eKh60m2z8RG88uD2ohwOjw&utm_medium=api&utm_source=f5f43b42&v=4D5D6E608B7CF4C92FE82D3CED08A178AB63BA8F",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews",
+            "leadership": "Leadership signals: stakeholder, decision",
+            "matched_methods_list": [
+              "interview",
+              "interviews"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior User Experience Researcher (remote)",
+          "company": "Sight Machine",
+          "location": "Des Moines, Polk County",
+          "region": "united_states",
+          "posted_at": "2023-03-17T13:58:13Z",
+          "match_score": 75.5,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/details/3984503741?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "usability",
+            "leadership": "Leadership signals: strategy",
+            "matched_methods_list": [
+              "usability"
+            ],
+            "matched_leadership_list": [
+              "strategy"
+            ]
+          }
+        },
+        {
+          "title": "(USA) Senior, Design Researcher",
+          "company": "Walmart",
+          "location": "Hoboken, Hudson County",
+          "region": "united_states",
+          "posted_at": "2026-09-16T09:37:13Z",
+          "match_score": 73.75,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/details/5886255832?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "qualitative",
+            "leadership": "Leadership signals: stakeholder",
+            "matched_methods_list": [
+              "qualitative"
+            ],
+            "matched_leadership_list": [
+              "stakeholder"
+            ]
+          }
+        },
+        {
+          "title": "Experience Researcher – Qualitative Consumer Research",
+          "company": "S3",
+          "location": "Plano, Collin County",
+          "region": "united_states",
+          "posted_at": "2026-09-13T02:56:36Z",
+          "match_score": 73.5,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/land/ad/5882325305?se=ykmC0m2z8RGfZajoCiK01Q&utm_medium=api&utm_source=f5f43b42&v=9072B8E6F599D4591AF4CABF25B8ABA9ED058B7B",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "qualitative, usability, generative",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "qualitative",
+              "usability",
+              "generative"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "UX Researcher III",
+          "company": "Brooksource",
+          "location": "Michigan, US",
+          "region": "united_states",
+          "posted_at": "2026-09-10T12:09:39Z",
+          "match_score": 72.5,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/land/ad/5878708393?se=eKh60m2z8RG88uD2ohwOjw&utm_medium=api&utm_source=f5f43b42&v=2FE2E6E51B88ABE61B2B67BEA7794C8E7CA7121E",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "qualitative",
+            "leadership": "Leadership signals: cross-functional, decision",
+            "matched_methods_list": [
+              "qualitative"
+            ],
+            "matched_leadership_list": [
+              "cross-functional",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "UX Researcher (Portuguese/English Bilingual)",
+          "company": "Insight Global",
+          "location": "Pico Heights, Los Angeles County",
+          "region": "united_states",
+          "posted_at": "2026-08-28T19:35:10Z",
+          "match_score": 72.5,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/land/ad/5860327325?se=xnwl022z8RGfZajoCiK01Q&utm_medium=api&utm_source=f5f43b42&v=826232E395A2F7A55F09864F4439E4DDB2349FB1",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews",
+            "leadership": "Leadership signals: stakeholder",
+            "matched_methods_list": [
+              "interview",
+              "interviews"
+            ],
+            "matched_leadership_list": [
+              "stakeholder"
+            ]
+          }
+        },
+        {
+          "title": "UX Researcher",
+          "company": "Uline",
+          "location": "Pleasant Prairie, Kenosha County",
+          "region": "united_states",
+          "posted_at": "2026-08-29T05:31:36Z",
+          "match_score": 72.5,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/details/5860930842?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: influence, cross-functional, decision",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "influence",
+              "cross-functional",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "User Experience Researcher",
+          "company": "Manifest Solutions",
+          "location": "Gahanna, Franklin County",
+          "region": "united_states",
+          "posted_at": "2026-09-18T04:56:42Z",
+          "match_score": 72.5,
+          "fit_tier": "Good fit",
+          "url": "https://www.adzuna.com/details/5888959867?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: stakeholder, partner, decision",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "stakeholder",
+              "partner",
+              "decision"
+            ]
+          }
+        }
+      ]
     }
   ],
-  "last_updated": "2026-09-17T17:02:43.229829"
+  "last_updated": "2026-09-18T14:32:56.130689"
 }

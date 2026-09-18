@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   run-job-search:
@@ -71,4 +72,10 @@ jobs:
             git commit -m "Update dashboard history"
             git push
           fi
+
+      - name: Trigger dashboard deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run deploy-pages.yml --ref main
 # Re-registered schedule trigger after history rewrite (2026-09-16T13:41:24Z)

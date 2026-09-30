@@ -3,6 +3,7 @@ import html
 import json
 import os
 import re
+import time
 from typing import Any, Dict, List
 
 import requests
@@ -17,11 +18,15 @@ HEADERS = {
 ADZUNA_COUNTRIES = ["us", "ca", "mx"]
 ADZUNA_RESULTS_PER_PAGE = 50
 ADZUNA_MAX_PAGES = 2
+# Adzuna's default limit is 25 requests/minute (also 250/day, 1000/week, 2500/month).
+# Requests run one at a time, spaced under that limit, and back off on 429.
+ADZUNA_REQUEST_INTERVAL_SECONDS = 2.5
+ADZUNA_MAX_RETRIES = 3
+ADZUNA_RETRY_WAIT_SECONDS = 30
 
-# JSearch (RapidAPI) wraps Google for Jobs, which covers LinkedIn, Indeed, Glassdoor, etc.
-# Each query costs one request per page against a monthly quota, so keep queries few.
-JSEARCH_URL = "https://jsearch.p.rapidapi.com/search"
-JSEARCH_HOST = "jsearch.p.rapidapi.com"
+# JSearch (via OpenWebNinja) wraps Google for Jobs, which covers LinkedIn, Indeed, Glassdoor, etc.
+# Each query costs one request against the monthly quota (200 on the free plan), so keep queries few.
+JSEARCH_URL = "https://api.openwebninja.com/jsearch/search-v2"
 
 USAJOBS_URL = "https://data.usajobs.gov/api/Search"
 USAJOBS_MAX_DAYS = 60  # API limit for DatePosted
@@ -125,6 +130,19 @@ def fetch_ashby_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any
     return jobs
 
 
+def _adzuna_get(url: str, params: Dict[str, Any]) -> requests.Response:
+    for attempt in range(ADZUNA_MAX_RETRIES + 1):
+        time.sleep(ADZUNA_REQUEST_INTERVAL_SECONDS)
+        response = requests.get(url, headers=HEADERS, params=params, timeout=10)
+        if response.status_code != 429 or attempt == ADZUNA_MAX_RETRIES:
+            response.raise_for_status()
+            return response
+        retry_after = response.headers.get("Retry-After", "")
+        wait = int(retry_after) if retry_after.isdigit() else ADZUNA_RETRY_WAIT_SECONDS * (attempt + 1)
+        print(f"[WARN] Adzuna rate limit hit; retrying in {wait}s (attempt {attempt + 1}/{ADZUNA_MAX_RETRIES}).")
+        time.sleep(wait)
+
+
 def fetch_adzuna_jobs(country: str, query: str, app_id: str, app_key: str, max_days_old: int = None) -> List[Dict[str, Any]]:
     jobs = []
     for page in range(1, ADZUNA_MAX_PAGES + 1):
@@ -138,9 +156,7 @@ def fetch_adzuna_jobs(country: str, query: str, app_id: str, app_key: str, max_d
         }
         if max_days_old:
             params["max_days_old"] = max_days_old
-        response = requests.get(url, headers=HEADERS, params=params, timeout=10)
-        response.raise_for_status()
-        payload = response.json()
+        payload = _adzuna_get(url, params).json()
         results = payload.get("results", [])
         if not results:
             break
@@ -180,31 +196,17 @@ def _fetch_adzuna_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     tasks = [(country, query) for country in ADZUNA_COUNTRIES for query in queries]
 
     jobs: List[Dict[str, Any]] = []
-
-    def _run(task):
-        country, query = task
+    for country, query in tasks:
         try:
-            return fetch_adzuna_jobs(country, query, app_id, app_key, max_days_old)
+            jobs.extend(fetch_adzuna_jobs(country, query, app_id, app_key, max_days_old))
         except Exception as exc:
             print(f"[WARN] Failed to fetch Adzuna jobs ({country}, '{query}'): {exc}")
-            return []
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-        for job_list in executor.map(_run, tasks):
-            jobs.extend(job_list)
-
     return jobs
 
 
-def fetch_jsearch_jobs(query: str, api_key: str, date_posted: str, num_pages: int) -> List[Dict[str, Any]]:
-    params = {
-        "query": query,
-        "page": 1,
-        "num_pages": num_pages,
-        "country": "us",
-        "date_posted": date_posted,
-    }
-    headers = {**HEADERS, "X-RapidAPI-Key": api_key, "X-RapidAPI-Host": JSEARCH_HOST}
+def fetch_jsearch_jobs(query: str, api_key: str, date_posted: str) -> List[Dict[str, Any]]:
+    params = {"query": query, "country": "us", "date_posted": date_posted}
+    headers = {**HEADERS, "x-api-key": api_key}
     response = requests.get(JSEARCH_URL, headers=headers, params=params, timeout=30)
     response.raise_for_status()
     payload = response.json()
@@ -240,12 +242,11 @@ def _fetch_jsearch_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     queries = config.get("jsearch_search_queries") or ["UX Researcher"]
     date_posted = config.get("jsearch_date_posted", "3days")
-    num_pages = int(config.get("jsearch_num_pages", 1))
 
     jobs: List[Dict[str, Any]] = []
     for query in queries:
         try:
-            jobs.extend(fetch_jsearch_jobs(query, api_key, date_posted, num_pages))
+            jobs.extend(fetch_jsearch_jobs(query, api_key, date_posted))
         except Exception as exc:
             print(f"[WARN] Failed to fetch JSearch jobs ('{query}'): {exc}")
     return jobs

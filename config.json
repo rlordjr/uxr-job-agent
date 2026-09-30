@@ -6,6 +6,21 @@
     "Qualitative Researcher",
     "User Experience Researcher"
   ],
+  "jsearch_search_queries": [
+    "UX Researcher",
+    "User Researcher",
+    "Design Researcher",
+    "UX Research Manager"
+  ],
+  "jsearch_date_posted": "3days",
+  "jsearch_num_pages": 1,
+  "usajobs_search_queries": [
+    "user experience research",
+    "UX researcher",
+    "user research",
+    "design research",
+    "human-centered design"
+  ],
   "company_location_allowlist": {
     "cox automotive": ["cobb", "dekalb", "fulton"]
   },

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import json
 import os
+import re
 import smtplib
 from email.message import EmailMessage
 from typing import Any, Dict, Iterable, List
@@ -196,7 +197,9 @@ def parse_posted_date(raw_date: Any):
             if ts > 1e11:  # milliseconds
                 ts = ts / 1000.0
             return datetime.fromtimestamp(ts, tz=timezone.utc)
-        dt = datetime.fromisoformat(raw_str.replace("Z", "+00:00"))
+        # Normalize fractional seconds to 6 digits (USAJobs sends 4, which older Pythons reject).
+        iso = re.sub(r"\.(\d+)", lambda m: "." + (m.group(1) + "000000")[:6], raw_str.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(iso)
         return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
     except (ValueError, OverflowError, OSError):
         return None

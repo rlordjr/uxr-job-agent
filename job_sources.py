@@ -18,6 +18,14 @@ ADZUNA_COUNTRIES = ["us", "ca", "mx"]
 ADZUNA_RESULTS_PER_PAGE = 50
 ADZUNA_MAX_PAGES = 2
 
+# JSearch (RapidAPI) wraps Google for Jobs, which covers LinkedIn, Indeed, Glassdoor, etc.
+# Each query costs one request per page against a monthly quota, so keep queries few.
+JSEARCH_URL = "https://jsearch.p.rapidapi.com/search"
+JSEARCH_HOST = "jsearch.p.rapidapi.com"
+
+USAJOBS_URL = "https://data.usajobs.gov/api/Search"
+USAJOBS_MAX_DAYS = 60  # API limit for DatePosted
+
 
 def clean_html(raw_html: str) -> str:
     if not raw_html:
@@ -188,6 +196,109 @@ def _fetch_adzuna_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     return jobs
 
 
+def fetch_jsearch_jobs(query: str, api_key: str, date_posted: str, num_pages: int) -> List[Dict[str, Any]]:
+    params = {
+        "query": query,
+        "page": 1,
+        "num_pages": num_pages,
+        "country": "us",
+        "date_posted": date_posted,
+    }
+    headers = {**HEADERS, "X-RapidAPI-Key": api_key, "X-RapidAPI-Host": JSEARCH_HOST}
+    response = requests.get(JSEARCH_URL, headers=headers, params=params, timeout=30)
+    response.raise_for_status()
+    payload = response.json()
+
+    jobs = []
+    for item in payload.get("data") or []:
+        location = item.get("job_location") or ", ".join(
+            part for part in [item.get("job_city"), item.get("job_state"), item.get("job_country")] if part
+        )
+        if item.get("job_is_remote"):
+            location = f"Remote - {location}" if location else "Remote - US"
+
+        jobs.append({
+            "title": item.get("job_title"),
+            "company": item.get("employer_name") or "Unknown",
+            "location": location or "Unknown",
+            "description": item.get("job_description") or "",
+            "source": "jsearch",
+            "source_country": (item.get("job_country") or "us").lower(),
+            "url": item.get("job_apply_link") or item.get("job_google_link") or "",
+            "salary": item.get("job_min_salary") or "",
+            "posted_at": item.get("job_posted_at_datetime_utc") or item.get("job_posted_at_timestamp") or "",
+            "raw": item,
+        })
+    return jobs
+
+
+def _fetch_jsearch_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    api_key = os.getenv("JSEARCH_API_KEY")
+    if not api_key:
+        print("[INFO] JSearch credentials not configured (JSEARCH_API_KEY); skipping JSearch.")
+        return []
+
+    queries = config.get("jsearch_search_queries") or ["UX Researcher"]
+    date_posted = config.get("jsearch_date_posted", "3days")
+    num_pages = int(config.get("jsearch_num_pages", 1))
+
+    jobs: List[Dict[str, Any]] = []
+    for query in queries:
+        try:
+            jobs.extend(fetch_jsearch_jobs(query, api_key, date_posted, num_pages))
+        except Exception as exc:
+            print(f"[WARN] Failed to fetch JSearch jobs ('{query}'): {exc}")
+    return jobs
+
+
+def fetch_usajobs_jobs(keyword: str, api_key: str, email: str, days: int) -> List[Dict[str, Any]]:
+    params = {"Keyword": keyword, "DatePosted": days, "ResultsPerPage": 500}
+    headers = {"Host": "data.usajobs.gov", "User-Agent": email, "Authorization-Key": api_key}
+    response = requests.get(USAJOBS_URL, headers=headers, params=params, timeout=30)
+    response.raise_for_status()
+    payload = response.json()
+
+    jobs = []
+    for result in (payload.get("SearchResult") or {}).get("SearchResultItems") or []:
+        item = result.get("MatchedObjectDescriptor") or {}
+        details = (item.get("UserArea") or {}).get("Details") or {}
+        pay = (item.get("PositionRemuneration") or [{}])[0]
+
+        jobs.append({
+            "title": item.get("PositionTitle"),
+            "company": item.get("OrganizationName") or item.get("DepartmentName") or "US Federal Government",
+            "location": item.get("PositionLocationDisplay") or "United States",
+            "description": " ".join(part for part in [details.get("JobSummary"), item.get("QualificationSummary")] if part),
+            "source": "usajobs",
+            "source_country": "us",
+            "url": item.get("PositionURI") or "",
+            "salary": pay.get("MinimumRange") or "",
+            "posted_at": item.get("PublicationStartDate") or "",
+            "raw": item,
+        })
+    return jobs
+
+
+def _fetch_usajobs_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    api_key = os.getenv("USA_JOBS")
+    # USAJobs requires the email the key was registered with, sent as the User-Agent.
+    email = os.getenv("USA_JOBS_EMAIL") or os.getenv("EMAIL_TO")
+    if not api_key or not email:
+        print("[INFO] USAJobs credentials not configured (USA_JOBS + EMAIL_TO); skipping USAJobs.")
+        return []
+
+    keywords = config.get("usajobs_search_queries") or ["user experience research"]
+    days = min(int(config.get("search_window_days", 30)), USAJOBS_MAX_DAYS)
+
+    jobs: List[Dict[str, Any]] = []
+    for keyword in keywords:
+        try:
+            jobs.extend(fetch_usajobs_jobs(keyword, api_key, email, days))
+        except Exception as exc:
+            print(f"[WARN] Failed to fetch USAJobs jobs ('{keyword}'): {exc}")
+    return jobs
+
+
 def _fetch_single_source(source: Dict[str, Any]) -> List[Dict[str, Any]]:
     source_type = source.get("type", "").lower()
     company_slug = source.get("company")
@@ -214,6 +325,9 @@ def fetch_jobs_from_config(config: Dict[str, Any]) -> List[Dict[str, Any]]:
         for job_list in results:
             all_jobs.extend(job_list)
 
-    all_jobs.extend(_fetch_adzuna_all(config))
+    for source_name, fetch in [("Adzuna", _fetch_adzuna_all), ("JSearch", _fetch_jsearch_all), ("USAJobs", _fetch_usajobs_all)]:
+        jobs = fetch(config)
+        print(f"[INFO] {source_name}: fetched {len(jobs)} job(s).")
+        all_jobs.extend(jobs)
 
     return all_jobs

@@ -204,6 +204,27 @@ def _fetch_adzuna_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     return jobs
 
 
+def _describe_shape(value: Any) -> str:
+    if isinstance(value, dict):
+        return "{" + ", ".join(f"{k}: {type(v).__name__}" for k, v in value.items()) + "}"
+    return type(value).__name__
+
+
+def _jsearch_items(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """search-v2 may return the job list directly under "data" or nested inside it
+    (e.g. alongside a pagination cursor); accept either."""
+    data = payload.get("data")
+    if isinstance(data, dict):
+        data = data.get("jobs") or data.get("data") or next((v for v in data.values() if isinstance(v, list)), None)
+    items = [item for item in data or [] if isinstance(item, dict)]
+    if not items:
+        # Log field names only (no values) so an unexpected response format can be diagnosed.
+        print(f"[WARN] JSearch returned no job objects. Response shape: {_describe_shape(payload)}; data: {_describe_shape(payload.get('data'))}")
+    elif not items[0].get("job_title"):
+        print(f"[WARN] JSearch job fields not recognized: {sorted(items[0].keys())}")
+    return items
+
+
 def fetch_jsearch_jobs(query: str, api_key: str, date_posted: str) -> List[Dict[str, Any]]:
     params = {"query": query, "country": "us", "date_posted": date_posted}
     headers = {**HEADERS, "x-api-key": api_key}
@@ -212,7 +233,7 @@ def fetch_jsearch_jobs(query: str, api_key: str, date_posted: str) -> List[Dict[
     payload = response.json()
 
     jobs = []
-    for item in payload.get("data") or []:
+    for item in _jsearch_items(payload):
         location = item.get("job_location") or ", ".join(
             part for part in [item.get("job_city"), item.get("job_state"), item.get("job_country")] if part
         )

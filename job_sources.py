@@ -211,16 +211,17 @@ def _describe_shape(value: Any) -> str:
 
 
 def _jsearch_items(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """search-v2 may return the job list directly under "data" or nested inside it
-    (e.g. alongside a pagination cursor); accept either."""
+    """search-v2 returns {"data": {"jobs": [...], "cursor": ...}}; older responses put the
+    list directly under "data". Accept either."""
     data = payload.get("data")
     if isinstance(data, dict):
-        data = data.get("jobs") or data.get("data") or next((v for v in data.values() if isinstance(v, list)), None)
-    items = [item for item in data or [] if isinstance(item, dict)]
-    if not items:
+        data = data.get("jobs")
+    if not isinstance(data, list):
         # Log field names only (no values) so an unexpected response format can be diagnosed.
-        print(f"[WARN] JSearch returned no job objects. Response shape: {_describe_shape(payload)}; data: {_describe_shape(payload.get('data'))}")
-    elif not items[0].get("job_title"):
+        print(f"[WARN] Unrecognized JSearch response. Shape: {_describe_shape(payload)}; data: {_describe_shape(payload.get('data'))}")
+        return []
+    items = [item for item in data if isinstance(item, dict)]
+    if items and not items[0].get("job_title"):
         print(f"[WARN] JSearch job fields not recognized: {sorted(items[0].keys())}")
     return items
 

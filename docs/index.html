@@ -87,11 +87,22 @@
     .signals strong { color: var(--text); }
     .meta { font-size: 12px; color: #57606a; margin-bottom: 12px; }
     .empty { padding: 40px; text-align: center; color: #57606a; }
+    .new-badge {
+      display: inline-block;
+      margin-right: 6px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      background: #0969da;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
   <h1>UX Research Job Digest</h1>
-  <div class="subtitle">Rolling view of top matches across recent daily runs.</div>
+  <div class="subtitle">Rolling view of matches across recent daily runs. Jobs marked NEW first appeared in the latest run.</div>
 
   <div class="controls">
     <label>
@@ -148,7 +159,7 @@
     };
 
     let historyData = { runs: [] };
-    let sortKey = "match_score";
+    let sortKey = "first_seen";
     let sortDir = -1;
 
     async function loadData() {
@@ -172,16 +183,29 @@
       cutoff.setDate(cutoff.getDate() - windowDays + 1);
       const cutoffStr = cutoff.toISOString().slice(0, 10);
 
-      const relevantRuns = (historyData.runs || []).filter((r) => r.run_date >= cutoffStr);
+      const allRuns = historyData.runs || [];
+      const relevantRuns = allRuns.filter((r) => r.run_date >= cutoffStr);
+      const latestRun = allRuns.reduce((max, r) => (r.run_date > max ? r.run_date : max), "");
+
+      // Older history entries predate first_seen; fall back to the earliest run a job appeared in.
+      const firstSeenByKey = new Map();
+      for (const run of allRuns) {
+        for (const job of run.jobs || []) {
+          const key = jobKey(job);
+          const firstSeen = job.first_seen || run.run_date;
+          if (!firstSeenByKey.has(key) || firstSeen < firstSeenByKey.get(key)) firstSeenByKey.set(key, firstSeen);
+        }
+      }
 
       // Dedupe by title+company, keeping the highest-scoring / most-recently-seen instance.
       const byKey = new Map();
       for (const run of relevantRuns) {
         for (const job of run.jobs || []) {
-          const key = (job.title || "").toLowerCase() + "|" + (job.company || "").toLowerCase();
+          const key = jobKey(job);
           const existing = byKey.get(key);
           if (!existing || (job.match_score || 0) > (existing.match_score || 0)) {
-            byKey.set(key, { ...job, last_seen_run: run.run_date });
+            const firstSeen = firstSeenByKey.get(key);
+            byKey.set(key, { ...job, first_seen: firstSeen, is_new: firstSeen === latestRun, last_seen_run: run.run_date });
           }
         }
       }
@@ -197,7 +221,7 @@
         else { av = (av || "").toString().toLowerCase(); bv = (bv || "").toString().toLowerCase(); }
         if (av < bv) return -1 * sortDir;
         if (av > bv) return 1 * sortDir;
-        return 0;
+        return (b.match_score || 0) - (a.match_score || 0);
       });
 
       return jobs.slice(0, topN);
@@ -207,7 +231,8 @@
       const jobs = getFilteredJobs();
       const meta = document.getElementById("metaLine");
       const lastUpdated = historyData.last_updated ? new Date(historyData.last_updated).toLocaleString() : "Unknown";
-      meta.textContent = `Showing ${jobs.length} job(s). Data last updated: ${lastUpdated}`;
+      const newCount = jobs.filter((j) => j.is_new).length;
+      meta.textContent = `Showing ${jobs.length} job(s), ${newCount} new in the latest run. Data last updated: ${lastUpdated}`;
 
       const container = document.getElementById("tableContainer");
       if (jobs.length === 0) {
@@ -227,7 +252,7 @@
         return `
           <tr>
             <td>
-              <a href="${escapeHtml(j.url || '#')}" target="_blank" rel="noopener">${escapeHtml(j.title || 'Untitled')}</a>
+              ${j.is_new ? '<span class="new-badge">NEW</span>' : ''}<a href="${escapeHtml(j.url || '#')}" target="_blank" rel="noopener">${escapeHtml(j.title || 'Untitled')}</a>
               <div class="signals">${signalLines.join("<br/>")}</div>
             </td>
             <td>${escapeHtml(j.company || '')}</td>
@@ -236,6 +261,7 @@
             <td>${escapeHtml(j.posted_at || '')}</td>
             <td><span class="tier ${tierClass}">${escapeHtml(j.fit_tier || '')}</span></td>
             <td>${(j.match_score || 0).toFixed(1)}</td>
+            <td>${escapeHtml(j.first_seen || '')}</td>
             <td>${escapeHtml(j.last_seen_run || '')}</td>
           </tr>
         `;
@@ -252,6 +278,7 @@
               <th data-key="posted_at">Date Posted</th>
               <th data-key="fit_tier">Fit Tier</th>
               <th data-key="match_score">Score</th>
+              <th data-key="first_seen">First Seen</th>
               <th data-key="last_seen_run">Last Seen</th>
             </tr>
           </thead>
@@ -267,6 +294,10 @@
           render();
         });
       });
+    }
+
+    function jobKey(job) {
+      return (job.title || "").toLowerCase() + "|" + (job.company || "").toLowerCase();
     }
 
     function escapeHtml(str) {

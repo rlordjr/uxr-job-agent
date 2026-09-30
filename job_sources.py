@@ -53,7 +53,8 @@ def fetch_greenhouse_jobs(company_slug: str, company_name: str) -> List[Dict[str
             "source": "greenhouse",
             "url": item.get("absolute_url") or f"https://boards.greenhouse.io/{company_slug}/jobs/{item.get('id')}",
             "salary": item.get("salary") or item.get("compensation") or "",
-            "posted_at": item.get("updated_at") or "",
+            # updated_at changes whenever a posting is edited; first_published is the real post date.
+            "posted_at": item.get("first_published") or item.get("updated_at") or "",
             "raw": item,
         })
     return jobs
@@ -116,7 +117,7 @@ def fetch_ashby_jobs(company_slug: str, company_name: str) -> List[Dict[str, Any
     return jobs
 
 
-def fetch_adzuna_jobs(country: str, query: str, app_id: str, app_key: str) -> List[Dict[str, Any]]:
+def fetch_adzuna_jobs(country: str, query: str, app_id: str, app_key: str, max_days_old: int = None) -> List[Dict[str, Any]]:
     jobs = []
     for page in range(1, ADZUNA_MAX_PAGES + 1):
         url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/{page}"
@@ -127,6 +128,8 @@ def fetch_adzuna_jobs(country: str, query: str, app_id: str, app_key: str) -> Li
             "results_per_page": ADZUNA_RESULTS_PER_PAGE,
             "content-type": "application/json",
         }
+        if max_days_old:
+            params["max_days_old"] = max_days_old
         response = requests.get(url, headers=HEADERS, params=params, timeout=10)
         response.raise_for_status()
         payload = response.json()
@@ -165,6 +168,7 @@ def _fetch_adzuna_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
         return []
 
     queries = config.get("adzuna_search_queries") or ["UX Researcher", "User Researcher", "Design Researcher"]
+    max_days_old = config.get("search_window_days")
     tasks = [(country, query) for country in ADZUNA_COUNTRIES for query in queries]
 
     jobs: List[Dict[str, Any]] = []
@@ -172,7 +176,7 @@ def _fetch_adzuna_all(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     def _run(task):
         country, query = task
         try:
-            return fetch_adzuna_jobs(country, query, app_id, app_key)
+            return fetch_adzuna_jobs(country, query, app_id, app_key, max_days_old)
         except Exception as exc:
             print(f"[WARN] Failed to fetch Adzuna jobs ({country}, '{query}'): {exc}")
             return []

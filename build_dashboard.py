@@ -48,6 +48,8 @@ def main():
             "posted_at": job.get("posted_at"),
             "match_score": job.get("match_score"),
             "fit_tier": job.get("fit_tier"),
+            "first_seen": job.get("first_seen"),
+            "is_new": job.get("is_new"),
             "url": job.get("url"),
             "signals": job.get("signals", {}),
         })

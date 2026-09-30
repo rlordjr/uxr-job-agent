@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import json
 import os
 import smtplib
@@ -11,7 +11,12 @@ from scorer import ALLOWED_REGIONS, load_profile, score_job
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 PROFILE_PATH = os.path.join(os.path.dirname(__file__), "candidate_profile.json")
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
-PREVIOUS_RESULTS_PATH = os.path.join(OUTPUT_DIR, "previous_jobs.json")
+# Committed to the repo by the workflow so "already shown" survives between Actions runs
+# (output/ is gitignored and starts empty on every runner).
+SEEN_JOBS_PATH = os.path.join(os.path.dirname(__file__), "data", "seen_jobs.json")
+HISTORY_PATH = os.path.join(os.path.dirname(__file__), "docs", "data", "history.json")
+SEEN_RETENTION_DAYS = 90
+MAX_STILL_OPEN_SHOWN = 20
 RESULTS_PATH = os.path.join(OUTPUT_DIR, "results.json")
 NEW_JOBS_PATH = os.path.join(OUTPUT_DIR, "new_jobs.json")
 TOP_MATCHES_PATH = os.path.join(OUTPUT_DIR, "top_matches.csv")
@@ -110,21 +115,101 @@ def save_json(path: str, payload: Any) -> None:
 
 def save_top_matches_csv(results: List[Dict[str, Any]], path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:
-        f.write("title,company,location,posted_at,fit_tier,match_score,url\n")
+        f.write("new,first_seen,title,company,location,posted_at,fit_tier,match_score,url\n")
         for item in results:
             posted = format_posted_date(item.get("posted_at"))
             f.write(
-                f"\"{item.get('title','')}\",\"{item.get('company','')}\",\"{item.get('location','')}\",\"{posted}\",\"{item.get('fit_tier','')}\",{item.get('match_score','')},\"{item.get('url','')}\"\n"
+                f"{'yes' if item.get('is_new') else 'no'},{item.get('first_seen','')},\"{item.get('title','')}\",\"{item.get('company','')}\",\"{item.get('location','')}\",\"{posted}\",\"{item.get('fit_tier','')}\",{item.get('match_score','')},\"{item.get('url','')}\"\n"
             )
 
 
-def load_previous_jobs() -> Dict[str, Any]:
-    if os.path.exists(PREVIOUS_RESULTS_PATH):
-        return load_json(PREVIOUS_RESULTS_PATH)
-    return {"jobs": []}
+def _url_key(job: Dict[str, Any]) -> str:
+    return _normalize_dedupe_key(job.get("url"))
 
 
-def send_email_summary(summary: str, config: Dict[str, Any], attachment_path: str = None) -> None:
+def _title_company_key(job: Dict[str, Any]) -> str:
+    return f"{_normalize_dedupe_key(job.get('title'))}|{_normalize_dedupe_key(job.get('company'))}"
+
+
+class SeenJobs:
+    """Jobs already shown in a previous run, matched by URL or by title+company
+    (Adzuna redirect URLs can change between runs for the same posting)."""
+
+    def __init__(self, entries: List[Dict[str, Any]]):
+        self.entries = entries
+        self._by_url = {}
+        self._by_title_company = {}
+        for entry in entries:
+            self._index(entry)
+
+    def _index(self, entry: Dict[str, Any]) -> None:
+        if _url_key(entry):
+            self._by_url[_url_key(entry)] = entry
+        self._by_title_company[_title_company_key(entry)] = entry
+
+    def find(self, job: Dict[str, Any]) -> Dict[str, Any]:
+        return self._by_url.get(_url_key(job)) or self._by_title_company.get(_title_company_key(job))
+
+    def mark_seen(self, job: Dict[str, Any], today: str) -> None:
+        entry = self.find(job)
+        if entry is None:
+            entry = {"title": job.get("title"), "company": job.get("company"), "url": job.get("url"), "first_seen": today}
+            self.entries.append(entry)
+        entry["last_seen"] = today
+        self._index(entry)
+
+    def prune(self, retention_days: int) -> None:
+        cutoff = (datetime.now() - timedelta(days=retention_days)).strftime("%Y-%m-%d")
+        self.entries = [e for e in self.entries if e.get("last_seen", "") >= cutoff]
+
+
+def _seed_seen_entries_from_history() -> List[Dict[str, Any]]:
+    """First run with the seen-jobs file: treat everything already on the dashboard as seen."""
+    if not os.path.exists(HISTORY_PATH):
+        return []
+    seen = SeenJobs([])
+    for run in sorted(load_json(HISTORY_PATH).get("runs", []), key=lambda r: r.get("run_date", "")):
+        for job in run.get("jobs", []):
+            seen.mark_seen(job, run.get("run_date", ""))
+    return seen.entries
+
+
+def load_seen_jobs() -> SeenJobs:
+    if os.path.exists(SEEN_JOBS_PATH):
+        return SeenJobs(load_json(SEEN_JOBS_PATH).get("jobs", []))
+    return SeenJobs(_seed_seen_entries_from_history())
+
+
+def save_seen_jobs(seen: SeenJobs) -> None:
+    os.makedirs(os.path.dirname(SEEN_JOBS_PATH), exist_ok=True)
+    save_json(SEEN_JOBS_PATH, {"jobs": seen.entries})
+
+
+def parse_posted_date(raw_date: Any):
+    """Returns a UTC-aware datetime, or None if the date is missing/unparseable."""
+    raw_str = str(raw_date or "").strip()
+    if not raw_str:
+        return None
+    try:
+        if raw_str.isdigit():
+            ts = int(raw_str)
+            if ts > 1e11:  # milliseconds
+                ts = ts / 1000.0
+            return datetime.fromtimestamp(ts, tz=timezone.utc)
+        dt = datetime.fromisoformat(raw_str.replace("Z", "+00:00"))
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except (ValueError, OverflowError, OSError):
+        return None
+
+
+def is_within_window(job: Dict[str, Any], window_days: int) -> bool:
+    posted = parse_posted_date(job.get("posted_at"))
+    if posted is None:
+        return True  # Can't tell how old it is; let it through rather than silently drop it.
+    return posted >= datetime.now(timezone.utc) - timedelta(days=window_days)
+
+
+def send_email_summary(summary: str, config: Dict[str, Any], attachment_path: str = None, subject: str = "Daily UX Research Job Digest") -> None:
     email_cfg = config.get("email", {})
     if not email_cfg.get("enabled"):
         print("[INFO] Email is disabled in config.json")
@@ -144,7 +229,7 @@ def send_email_summary(summary: str, config: Dict[str, Any], attachment_path: st
         return
 
     msg = EmailMessage()
-    msg["Subject"] = "Daily UX Research Job Digest"
+    msg["Subject"] = subject
     msg["From"] = from_addr
     msg["To"] = to_addr
     msg.set_content(summary)
@@ -182,44 +267,33 @@ def send_email_summary(summary: str, config: Dict[str, Any], attachment_path: st
 
 
 def format_posted_date(raw_date: Any) -> str:
-    if not raw_date:
-        return "Not specified"
-    raw_str = str(raw_date).strip()
+    raw_str = str(raw_date or "").strip()
     if not raw_str:
         return "Not specified"
-    # Try timestamp in ms
-    if raw_str.isdigit():
-        try:
-            ts = int(raw_str)
-            if ts > 1e11:  # milliseconds
-                ts = ts / 1000.0
-            return datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
-        except Exception:
-            pass
-    # Try ISO string
-    try:
-        clean_iso = raw_str.replace("Z", "+00:00")
-        dt = datetime.fromisoformat(clean_iso)
+    dt = parse_posted_date(raw_str)
+    if dt:
         return dt.strftime("%Y-%m-%d")
-    except Exception:
-        # Return first 10 characters if YYYY-MM-DD
-        if len(raw_str) >= 10 and raw_str[:10].count("-") == 2:
-            return raw_str[:10]
-        return raw_str
+    # Return first 10 characters if YYYY-MM-DD
+    if len(raw_str) >= 10 and raw_str[:10].count("-") == 2:
+        return raw_str[:10]
+    return raw_str
 
 
-def build_digest(results: List[Dict[str, Any]]) -> str:
+def build_digest(new_jobs: List[Dict[str, Any]], still_open: List[Dict[str, Any]]) -> str:
     lines = [
         "Daily UX Research Job Digest",
         f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M EST')}",
         "==================================================",
         ""
     ]
-    if not results:
-        lines.append("No strong or moderate matches were found.")
-        return "\n".join(lines)
+    if new_jobs:
+        lines.append(f"NEW SINCE LAST RUN ({len(new_jobs)})")
+        lines.append("")
+    else:
+        lines.append("No new matches today.")
+        lines.append("")
 
-    for idx, item in enumerate(results[:20], start=1):
+    for idx, item in enumerate(new_jobs, start=1):
         posted_str = format_posted_date(item.get("posted_at"))
         lines.append(f"{idx}. {item.get('title')} | {item.get('company')}")
         lines.append(f"   • Location: {item.get('location')}")
@@ -238,6 +312,11 @@ def build_digest(results: List[Dict[str, Any]]) -> str:
             lines.append(f"   • Rationale: {item.get('match_reasons')}")
             
         lines.append("")
+
+    if still_open:
+        lines.append(f"STILL OPEN - ALREADY SENT ({len(still_open)})")
+        for item in still_open:
+            lines.append(f"- {item.get('title')} | {item.get('company')} | {item.get('match_score')}/100 | first seen {item.get('first_seen')} | {item.get('url')}")
 
     return "\n".join(lines)
 
@@ -312,6 +391,11 @@ def main() -> None:
     all_jobs = fetch_jobs_from_config(config)
     all_jobs = dedupe_jobs(all_jobs)
 
+    window_days = int(config.get("search_window_days", 30))
+    fetched_count = len(all_jobs)
+    all_jobs = [job for job in all_jobs if is_within_window(job, window_days)]
+    print(f"[INFO] Dropped {fetched_count - len(all_jobs)} job(s) posted more than {window_days} days ago.")
+
     # Region priority order for sorting: US first, then Canada/Caribbean, then Mexico/South America.
     REGION_PRIORITY = {"united_states": 0, "canada_caribbean": 1, "mexico_south_america": 2}
 
@@ -337,24 +421,37 @@ def main() -> None:
         scored_jobs,
         key=lambda item: (REGION_PRIORITY.get(item.get("region"), 3), -item.get("match_score", 0)),
     )
-    top_results = [job for job in scored_jobs if job.get("match_score", 0) >= 55][:20]
+    qualifying = [job for job in scored_jobs if job.get("match_score", 0) >= 55]
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    seen = load_seen_jobs()
+    new_jobs, still_open = [], []
+    for job in qualifying:
+        entry = seen.find(job)
+        job["is_new"] = entry is None
+        job["first_seen"] = entry.get("first_seen") if entry else today
+        (still_open if entry else new_jobs).append(job)
+
+    # Every new job is shown; already-sent jobs only fill in behind them.
+    still_open = still_open[:MAX_STILL_OPEN_SHOWN]
+    top_results = new_jobs + still_open
 
     save_json(RESULTS_PATH, top_results)
     save_top_matches_csv(top_results, TOP_MATCHES_PATH)
-
-    previous_jobs = load_previous_jobs().get("jobs", [])
-    previous_urls = {job.get("url") for job in previous_jobs}
-    new_jobs = [job for job in top_results if job.get("url") and job.get("url") not in previous_urls]
     save_json(NEW_JOBS_PATH, new_jobs)
 
-    save_json(PREVIOUS_RESULTS_PATH, {"jobs": top_results})
+    for job in qualifying:
+        seen.mark_seen(job, today)
+    seen.prune(SEEN_RETENTION_DAYS)
+    save_seen_jobs(seen)
 
-    digest = build_digest(new_jobs or top_results)
+    digest = build_digest(new_jobs, still_open)
+    subject = f"Daily UX Research Job Digest - {len(new_jobs)} new" if new_jobs else "Daily UX Research Job Digest - no new matches"
     if config.get("email", {}).get("enabled"):
-        send_email_summary(digest, config, attachment_path=TOP_MATCHES_PATH)
+        send_email_summary(digest, config, attachment_path=TOP_MATCHES_PATH, subject=subject)
     print(digest)
 
-    print(f"[INFO] Found {len(top_results)} relevant jobs. {len(new_jobs)} are new since the last run.")
+    print(f"[INFO] Found {len(qualifying)} relevant jobs. {len(new_jobs)} are new since the last run.")
 
 
 if __name__ == "__main__":

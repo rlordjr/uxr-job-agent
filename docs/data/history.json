@@ -18229,7 +18229,832 @@
           }
         }
       ]
+    },
+    {
+      "run_date": "2026-10-11",
+      "jobs": [
+        {
+          "title": "Senior User Researcher SC Cleared - Inside IR35 Contract",
+          "company": "Version 1 Solutions Limited",
+          "location": "Remote - Anywhere",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 98.0,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://www.jobleads.com/us/job/senior-user-researcher-sc-cleared-inside-ir35-contract--united-states--ed024bfcab5bfff9dacb6767a7c51f587",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "interview, interviews, qualitative, usability, moderated",
+            "leadership": "Leadership signals: stakeholder, strategy, leadership, coaching, mentoring",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability",
+              "moderated",
+              "unmoderated",
+              "synthesis",
+              "workshop",
+              "workshops",
+              "discovery",
+              "generative"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "leadership",
+              "coaching",
+              "mentoring",
+              "influence",
+              "partner",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "UX Researcher; MDC​/AICES",
+          "company": "Lever, Inc.",
+          "location": "Washington, DC",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 88.25,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://www.learn4good.com/jobs/washington/district-of-columbia/business/5537161806/e/",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews, qualitative, usability, discovery",
+            "leadership": "Leadership signals: stakeholder, leadership, decision",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability",
+              "discovery"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "leadership",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior UX Research Strategist",
+          "company": "SteerBridge",
+          "location": "Vienna, VA",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 84.25,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://bebee.com/us/jobs/senior-ux-research-strategist-steerbridge-vienna-va--jooble--8736347311500351632",
+          "signals": {
+            "role": "UX research responsibilities described in role content",
+            "seniority": "Seniority level: Senior",
+            "methods": "interview, interviews, usability, synthesis",
+            "leadership": "Leadership signals: leadership, decision",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "usability",
+              "synthesis"
+            ],
+            "matched_leadership_list": [
+              "leadership",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior UX Researcher - B2B Product Design",
+          "company": "Diversified Services Network, Inc.",
+          "location": "Chicago, IL",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 82.25,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://bebee.com/us/jobs/senior-ux-researcher-b2b-product-design-diversified-services-network-inc-chicago--t7xk-871965234",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: stakeholder, strategy, leadership, partner, roadmap",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "leadership",
+              "partner",
+              "roadmap",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior User Researcher, Public Sector — Remote & Impactful",
+          "company": "Version 1 Solutions Limited",
+          "location": "Remote - Anywhere",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 82.0,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://www.jobleads.com/us/job/senior-user-researcher-public-sector-remote-impactful--united-states--ea16dc5b0f07b8b13b5c80d9918c6cb13",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: strategy, mentoring, influence, decision",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "strategy",
+              "mentoring",
+              "influence",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Staff Design Researcher, Identity & AI Trust",
+          "company": "Intuit, Inc.",
+          "location": "Mountain View, CA",
+          "region": "united_states",
+          "posted_at": "2026-10-09T00:00:00.000Z",
+          "match_score": 77.5,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://bebee.com/us/jobs/staff-design-researcher-identity-ai-trust-intuit-inc-mountain-view-ca-united-states--jobgoal-9663_1f4dbdd51d7de4d959540e36496204a4",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Staff",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: stakeholder, influence, partner",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "stakeholder",
+              "influence",
+              "partner"
+            ]
+          }
+        },
+        {
+          "title": "UX Designer & Researcher - Enterprise HCM, Secret Clearance",
+          "company": "DXC Technology",
+          "location": "Arlington, VA",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 74.25,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://jooble.org/jdp/-3097556434026772553",
+          "signals": {
+            "role": "Strong product/experience research title match",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews, usability",
+            "leadership": "Leadership signals: cross-functional",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "usability"
+            ],
+            "matched_leadership_list": [
+              "cross-functional"
+            ]
+          }
+        },
+        {
+          "title": "Senior UX Design Leader - Remote, Research-Driven Impact",
+          "company": "SupplyHouse.com",
+          "location": "Remote - Anywhere",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 70.0,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://www.jobleads.com/us/job/senior-ux-design-leader-remote-research-driven-impact--united-states--ef23d32aeafd03df7fde417d14e58eb3c",
+          "signals": {
+            "role": "General research title",
+            "seniority": "Seniority level: Senior, Lead",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: strategy, leadership, partner, decision",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "strategy",
+              "leadership",
+              "partner",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior UX Researcher - Enterprise AI Adoption & Workforce Transformation",
+          "company": "Infinitive Inc",
+          "location": "Mc Lean, Fairfax County",
+          "region": "united_states",
+          "posted_at": "2026-10-10T16:50:05Z",
+          "match_score": 68.25,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://www.adzuna.com/details/5922548304?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "(1114759) Senior UX Researcher - B2B Product Design",
+          "company": "Diversified Services Network, Inc.",
+          "location": "Chicago, Cook County",
+          "region": "united_states",
+          "posted_at": "2026-10-07T13:10:30Z",
+          "match_score": 67.25,
+          "fit_tier": "Marginal fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://www.adzuna.com/details/5917451395?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Game Design Researcher Remote Europe / US",
+          "company": "Elysium Interactive Ltd",
+          "location": "New York, NY",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 65.75,
+          "fit_tier": "Marginal fit",
+          "first_seen": "2026-10-11",
+          "is_new": true,
+          "url": "https://www.jobilize.com/job/us-ny-new-york-game-design-researcher-remote-europe-elysium-interactive",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "generative",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "generative"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Senior UX Researcher, 6-month contract",
+          "company": "GoTo",
+          "location": "Remote - Anywhere",
+          "region": "united_states",
+          "posted_at": "2026-10-08T00:00:00.000Z",
+          "match_score": 98.0,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-10",
+          "is_new": false,
+          "url": "https://jobgether.com/offer/6ac7efa4480485773197d15f-senior-ux-researcher-6-month-contract",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "interview, interviews, qualitative, usability, workshop",
+            "leadership": "Leadership signals: stakeholder, strategy, coaching, partner",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability",
+              "workshop",
+              "workshops",
+              "discovery"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "coaching",
+              "partner"
+            ]
+          }
+        },
+        {
+          "title": "Senior UX Researcher, Retail Ads Consumer",
+          "company": "Google",
+          "location": "New York, NY",
+          "region": "united_states",
+          "posted_at": "2026-10-10T00:00:00.000Z",
+          "match_score": 97.25,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-09-30",
+          "is_new": false,
+          "url": "https://www.linkedin.com/jobs/view/senior-ux-researcher-retail-ads-consumer-at-google-4467858839",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "interview, interviews, qualitative, usability, moderated",
+            "leadership": "Leadership signals: stakeholder, leadership, cross-functional, partner, roadmap",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability",
+              "moderated",
+              "unmoderated",
+              "ethnography",
+              "generative"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "leadership",
+              "cross-functional",
+              "partner",
+              "roadmap",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "User Researcher, Vice President (Corporate Responsibility and Morgan Health)",
+          "company": "J.P. Morgan",
+          "location": "Columbus, OH",
+          "region": "united_states",
+          "posted_at": "2026-10-09T00:00:00.000Z",
+          "match_score": 94.25,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-09-30",
+          "is_new": false,
+          "url": "https://www.careersingovernment.com/job/3367141/user-researcher/",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews, qualitative, ethnography, user journey",
+            "leadership": "Leadership signals: strategy, leadership, coaching, cross-functional, prioritization",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "ethnography",
+              "user journey",
+              "generative"
+            ],
+            "matched_leadership_list": [
+              "strategy",
+              "leadership",
+              "coaching",
+              "cross-functional",
+              "prioritization",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "User Experience Researcher",
+          "company": "Oscar Health",
+          "location": "New York, NY",
+          "region": "united_states",
+          "posted_at": "2026-10-09T00:00:00.000Z",
+          "match_score": 94.25,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-07",
+          "is_new": false,
+          "url": "https://www.linkedin.com/jobs/view/user-experience-researcher-at-oscar-health-4458069394",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "qualitative, synthesis, workshop, workshops, mixed methods",
+            "leadership": "Leadership signals: stakeholder, strategy, cross-functional, prioritization, partner",
+            "matched_methods_list": [
+              "qualitative",
+              "synthesis",
+              "workshop",
+              "workshops",
+              "mixed methods",
+              "discovery"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "cross-functional",
+              "prioritization",
+              "partner",
+              "roadmap",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "SVP, Research & Insights - Experience Design",
+          "company": "Salesforce",
+          "location": "New York, NY",
+          "region": "united_states",
+          "posted_at": "2026-10-09T00:00:00.000Z",
+          "match_score": 90.75,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-10",
+          "is_new": false,
+          "url": "https://www.linkedin.com/jobs/view/svp-research-insights-experience-design-at-salesforce-4468687822",
+          "signals": {
+            "role": "UX research responsibilities described in role content",
+            "seniority": "Seniority level: Vp",
+            "methods": "qualitative, synthesis, mixed methods, discovery, generative",
+            "leadership": "Leadership signals: stakeholder, strategy, leadership, influence, roadmap",
+            "matched_methods_list": [
+              "qualitative",
+              "synthesis",
+              "mixed methods",
+              "discovery",
+              "generative"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "leadership",
+              "influence",
+              "roadmap",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior Qualitative Researcher - Weather Forecasting",
+          "company": "FWI",
+          "location": "Goldsby, McClain County",
+          "region": "united_states",
+          "posted_at": "2026-09-18T10:35:05Z",
+          "match_score": 81.25,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-09-19",
+          "is_new": false,
+          "url": "https://www.adzuna.com/details/5889382262?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "interview, interviews, qualitative",
+            "leadership": "Leadership signals: decision",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative"
+            ],
+            "matched_leadership_list": [
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "User Experience Research and Design - L1",
+          "company": "Bravo17 Digital",
+          "location": "Remote - Anywhere",
+          "region": "united_states",
+          "posted_at": "2026-10-09T00:00:00.000Z",
+          "match_score": 80.5,
+          "fit_tier": "Strong fit",
+          "first_seen": "2026-10-10",
+          "is_new": false,
+          "url": "https://www.linkedin.com/jobs/view/user-experience-research-and-design-l1-at-bravo17-digital-4477634951",
+          "signals": {
+            "role": "UX research responsibilities described in role content",
+            "seniority": "Unspecified seniority",
+            "methods": "interview, interviews, qualitative, usability",
+            "leadership": "Leadership signals: stakeholder, strategy, cross-functional, decision",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "cross-functional",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "(USA) Director, Design Research",
+          "company": "Walmart",
+          "location": "Cassville, MO",
+          "region": "united_states",
+          "posted_at": "2026-10-11T06:00:00.000Z",
+          "match_score": 78.75,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-10-03",
+          "is_new": false,
+          "url": "https://www.ziprecruiter.com/c/Walmart/Job/(USA)-Director,-Design-Research/-in-Cassville,MO?jid=ef72802548513a34",
+          "signals": {
+            "role": "General research title",
+            "seniority": "Seniority level: Director",
+            "methods": "qualitative, usability",
+            "leadership": "Leadership signals: stakeholder, strategy, influence, cross-functional, partner",
+            "matched_methods_list": [
+              "qualitative",
+              "usability"
+            ],
+            "matched_leadership_list": [
+              "stakeholder",
+              "strategy",
+              "influence",
+              "cross-functional",
+              "partner",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior User Experience Researcher",
+          "company": "M&T Bank",
+          "location": "Grand Central, Manhattan",
+          "region": "united_states",
+          "posted_at": "2026-10-10T08:22:58Z",
+          "match_score": 77.5,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-10-09",
+          "is_new": false,
+          "url": "https://www.adzuna.com/land/ad/5922130182?se=_pS3dXLF8RGRs48L_-pA7w&utm_medium=api&utm_source=f5f43b42&v=11E5AADE225E83C3EA3D32724B3B0273E775C9B8",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: influence, cross-functional, decision",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "influence",
+              "cross-functional",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "UX Researcher",
+          "company": "Insight Global",
+          "location": "Stamford, Fairfield County",
+          "region": "united_states",
+          "posted_at": "2026-10-03T07:05:42Z",
+          "match_score": 76.25,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-17",
+          "is_new": false,
+          "url": "https://www.adzuna.com/land/ad/5909872904?se=4oc2cHLF8RGRs48L_-pA7w&utm_medium=api&utm_source=f5f43b42&v=9491E14E41710B8DAA2F7EA50AF685E1BCC10558",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "interview, interviews, qualitative, usability",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "interview",
+              "interviews",
+              "qualitative",
+              "usability"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Senior UX Researcher",
+          "company": "Vanguard",
+          "location": "Charlotte, Clinton County",
+          "region": "united_states",
+          "posted_at": "2026-09-16T22:30:16Z",
+          "match_score": 74.75,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-30",
+          "is_new": false,
+          "url": "https://www.adzuna.com/land/ad/5887016808?se=4oc2cHLF8RGRs48L_-pA7w&utm_medium=api&utm_source=f5f43b42&v=83095C9C6C167FED64C89F82649ACDBD56232BCB",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "qualitative, usability",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "qualitative",
+              "usability"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Lead UX Researcher",
+          "company": "Insight Global",
+          "location": "Lebec, Kern County",
+          "region": "united_states",
+          "posted_at": "2026-10-05T07:07:49Z",
+          "match_score": 73.75,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-17",
+          "is_new": false,
+          "url": "https://www.adzuna.com/land/ad/5912402487?se=4oc2cHLF8RGRs48L_-pA7w&utm_medium=api&utm_source=f5f43b42&v=42AA1032D34794E545C837F7667B15333B5F165E",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Lead",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: stakeholder, partner",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "stakeholder",
+              "partner"
+            ]
+          }
+        },
+        {
+          "title": "Principal UX Researcher",
+          "company": "Athena Health",
+          "location": "Boston, Suffolk County",
+          "region": "united_states",
+          "posted_at": "2026-09-20T07:06:19Z",
+          "match_score": 73.75,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-30",
+          "is_new": false,
+          "url": "https://www.adzuna.com/details/5891656583?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Principal",
+            "methods": "discovery",
+            "leadership": "Leadership signals: strategy",
+            "matched_methods_list": [
+              "discovery"
+            ],
+            "matched_leadership_list": [
+              "strategy"
+            ]
+          }
+        },
+        {
+          "title": "User Experience Researcher",
+          "company": "Manifest Solutions",
+          "location": "Gahanna, Franklin County",
+          "region": "united_states",
+          "posted_at": "2026-09-18T04:56:42Z",
+          "match_score": 72.5,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-18",
+          "is_new": false,
+          "url": "https://www.adzuna.com/details/5888959867?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Mid/Senior researcher level",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: stakeholder, partner, decision",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "stakeholder",
+              "partner",
+              "decision"
+            ]
+          }
+        },
+        {
+          "title": "Senior User Experience Researcher",
+          "company": "EBSCO Information Services",
+          "location": "Ny State Campus, Albany County",
+          "region": "united_states",
+          "posted_at": "2026-10-09T08:07:10Z",
+          "match_score": 71.75,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-10-09",
+          "is_new": false,
+          "url": "https://www.adzuna.com/land/ad/5920548850?se=9FkTeHLF8RGRs48L_-pA7w&utm_medium=api&utm_source=f5f43b42&v=6063542B5D499EBCB40455B02B2ABB32E4BB075B",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "discovery",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "discovery"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Staff Qualitative UX Researcher, Monetization",
+          "company": "Pinterest",
+          "location": "San Francisco, California",
+          "region": "united_states",
+          "posted_at": "2026-09-17T03:10:10Z",
+          "match_score": 71.0,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-16",
+          "is_new": false,
+          "url": "https://www.adzuna.com/details/5887287623?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Staff",
+            "methods": "qualitative",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "qualitative"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Human-Centered Design (HCD) Lead, UI/UX Researcher with Security Clearance",
+          "company": "Leidos",
+          "location": "Windsor Mill, Baltimore County",
+          "region": "united_states",
+          "posted_at": "2026-09-25T00:41:59Z",
+          "match_score": 71.0,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-29",
+          "is_new": false,
+          "url": "https://www.adzuna.com/land/ad/5897880038?se=4oc2cHLF8RGRs48L_-pA7w&utm_medium=api&utm_source=f5f43b42&v=F439B9BBDCD7BB7C28C23A9D8F41CEF74D96CE5C",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Lead",
+            "methods": "usability",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "usability"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Senior UX Researcher",
+          "company": "Fidelity",
+          "location": "Westlake, Denton County",
+          "region": "united_states",
+          "posted_at": "2026-09-23T07:32:25Z",
+          "match_score": 71.0,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-30",
+          "is_new": false,
+          "url": "https://www.adzuna.com/details/5895143442?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "No specific qualitative methods highlighted",
+            "leadership": "Leadership signals: partner",
+            "matched_methods_list": [],
+            "matched_leadership_list": [
+              "partner"
+            ]
+          }
+        },
+        {
+          "title": "Human-Centered Design (HCD) Lead, UI/UX Researcher",
+          "company": "Leidos",
+          "location": "Baltimore, Baltimore County",
+          "region": "united_states",
+          "posted_at": "2026-09-30T05:15:36Z",
+          "match_score": 71.0,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-30",
+          "is_new": false,
+          "url": "https://www.adzuna.com/land/ad/5903667584?se=1oC_cnLF8RGRs48L_-pA7w&utm_medium=api&utm_source=f5f43b42&v=3958D80249F532AC18A692B03907EB48C3483F62",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Lead",
+            "methods": "usability",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "usability"
+            ],
+            "matched_leadership_list": []
+          }
+        },
+        {
+          "title": "Senior UX Researcher, Qualitative",
+          "company": "Suno",
+          "location": "Los Angeles, Los Angeles County",
+          "region": "united_states",
+          "posted_at": "2026-09-18T05:43:35Z",
+          "match_score": 71.0,
+          "fit_tier": "Good fit",
+          "first_seen": "2026-09-19",
+          "is_new": false,
+          "url": "https://www.adzuna.com/details/5889011911?utm_medium=api&utm_source=f5f43b42",
+          "signals": {
+            "role": "Direct title match to target UX research role",
+            "seniority": "Seniority level: Senior",
+            "methods": "qualitative",
+            "leadership": "Standard individual contributor scope",
+            "matched_methods_list": [
+              "qualitative"
+            ],
+            "matched_leadership_list": []
+          }
+        }
+      ]
     }
   ],
-  "last_updated": "2026-10-10T12:35:02.935555"
+  "last_updated": "2026-10-11T12:53:16.304055"
 }

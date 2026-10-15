@@ -166,6 +166,93 @@ def _find_matched_keywords(text: str, keywords: List[str]) -> List[str]:
     return matched
 
 
+HYBRID_PHRASES = [
+    "hybrid", "days in office", "days in the office", "days per week in", "days a week in",
+]
+ONSITE_PHRASES = [
+    "on-site", "onsite", "on site", "in-office", "in office", "in-person", "in person",
+]
+REMOTE_PHRASES = [
+    "remote", "work from home", "work from anywhere", "wfh", "telework", "virtual",
+]
+# Descriptions mention "remote" and "on-site" in passing (e.g. "remote teams", "on-site research
+# sessions"), so only fairly explicit phrasing counts there.
+DESCRIPTION_HYBRID_PHRASES = [
+    "hybrid role", "hybrid position", "hybrid schedule", "hybrid work", "hybrid model",
+    "hybrid arrangement", "hybrid environment", "days in office", "days in the office",
+    "days per week in", "days a week in",
+]
+DESCRIPTION_ONSITE_PHRASES = [
+    "fully on-site", "fully onsite", "100% on-site", "100% onsite", "on-site role", "onsite role",
+    "on-site position", "onsite position", "in-office role", "in-office position", "5 days in office",
+    "five days in office", "must work on-site", "required to work on-site",
+]
+DESCRIPTION_REMOTE_PHRASES = [
+    "fully remote", "100% remote", "remote-first", "remote first", "remote position", "remote role",
+    "remote opportunity", "this is a remote", "work remotely", "remote eligible", "remote-eligible",
+]
+
+STRUCTURED_ARRANGEMENTS = {"remote": "Remote", "hybrid": "Hybrid", "onsite": "On-site", "on-site": "On-site"}
+
+
+def _structured_work_arrangement(job: Dict[str, Any]) -> str:
+    """Use the source's own remote/hybrid fields when it provides them."""
+    raw = job.get("raw") or {}
+    source = job.get("source") or ""
+
+    if source == "jsearch" and raw.get("job_is_remote"):
+        return "Remote"
+
+    if source == "usajobs":
+        details = (raw.get("UserArea") or {}).get("Details") or {}
+        if details.get("RemoteIndicator") in (True, "True", "true"):
+            return "Remote"
+        if details.get("TeleworkEligible") in (True, "True", "true"):
+            return "Hybrid (telework eligible)"
+        if "RemoteIndicator" in details or "TeleworkEligible" in details:
+            return "On-site"
+
+    # Lever and Ashby expose workplaceType ("remote", "hybrid", "onsite"/"OnSite", "unspecified").
+    workplace_type = str(raw.get("workplaceType") or "").strip().lower()
+    if workplace_type in STRUCTURED_ARRANGEMENTS:
+        return STRUCTURED_ARRANGEMENTS[workplace_type]
+    if source == "ashby" and raw.get("isRemote"):
+        return "Remote"
+    return ""
+
+
+def classify_work_arrangement(job: Dict[str, Any]) -> str:
+    """Label a job Remote, Hybrid, or On-site for display.
+
+    Prefers structured source fields, then the location string, then explicit description
+    phrasing. With no signal at all, a specific location usually means on-site, so the label
+    says it is a guess.
+    """
+    structured = _structured_work_arrangement(job)
+    if structured:
+        return structured
+
+    location = normalize_text(_coalesce(job.get("location"), ""))
+    if any(p in location for p in HYBRID_PHRASES):
+        return "Hybrid"
+    if any(p in location for p in REMOTE_PHRASES):
+        return "Remote"
+    if any(p in location for p in ONSITE_PHRASES):
+        return "On-site"
+
+    description = normalize_text(_coalesce(job.get("description"), ""))
+    if any(p in description for p in DESCRIPTION_HYBRID_PHRASES):
+        return "Hybrid (from description)"
+    if any(p in description for p in DESCRIPTION_ONSITE_PHRASES):
+        return "On-site (from description)"
+    if any(p in description for p in DESCRIPTION_REMOTE_PHRASES):
+        return "Remote (from description)"
+
+    if location and location not in ("unknown", "us", "usa", "united states"):
+        return "Likely on-site (not stated)"
+    return "Not stated"
+
+
 def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
     title = _coalesce(job.get("title"), "")
     description = _coalesce(job.get("description"), "")
@@ -308,6 +395,7 @@ def score_job(job: Dict[str, Any], profile: Dict[str, Any]) -> Dict[str, Any]:
             "seniority": seniority_detail,
             "methods": methods_detail,
             "leadership": leadership_detail,
+            "work_arrangement": classify_work_arrangement(job),
             "matched_methods_list": matched_methods,
             "matched_leadership_list": matched_leadership,
         }

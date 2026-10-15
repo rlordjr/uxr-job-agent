@@ -311,6 +311,7 @@ def build_digest(new_jobs: List[Dict[str, Any]], still_open: List[Dict[str, Any]
             lines.append(f"     - Seniority: {signals.get('seniority', 'N/A')}")
             lines.append(f"     - Qualitative Methods: {signals.get('methods', 'N/A')}")
             lines.append(f"     - Leadership / Influence: {signals.get('leadership', 'N/A')}")
+            lines.append(f"     - Work Arrangement: {signals.get('work_arrangement', 'N/A')}")
         elif item.get("match_reasons"):
             lines.append(f"   • Rationale: {item.get('match_reasons')}")
             
